@@ -53,12 +53,8 @@ jobs:
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A461C5EEB4954799A2309A4A0EE36E1A }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_355AC716CDDC4D2382BB36082D9D3A5C }}
-          subscription-id: e3527a88-6895-4a75-9258-94756f0a1e5b
-          enable-AzPSSession: false
-          environment: azurecloud
           allow-no-subscriptions: true
-          audience: api://AzureADTokenExchange
-          auth-type: SERVICE_PRINCIPAL
+          enable-AzPSSession: true
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
