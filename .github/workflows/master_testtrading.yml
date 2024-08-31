@@ -56,7 +56,7 @@ jobs:
           subscription-id: e3527a88-6895-4a75-9258-94756f0a1e5b
           enable-AzPSSession: false
           environment: azurecloud
-          allow-no-subscriptions: false
+          allow-no-subscriptions: true
           audience: api://AzureADTokenExchange
           auth-type: SERVICE_PRINCIPAL
 
