@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using static Test_Project.Controllers.ControlController;
 using System.Reflection.Metadata;
+using Newtonsoft.Json.Linq;
 
 public class PeriodicTaskService : BackgroundService
 {
@@ -164,10 +165,15 @@ public class PeriodicTaskService : BackgroundService
                         if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                         {
                             _logger.LogInformation("Bullish crossover detected with bullish divergence.");
+                            await TradeAsync("buy");
+                            
+
                             // Add your trade logic here
                         }
                         else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
                         {
+                            await TradeAsync("sell");
+
                             _logger.LogInformation("Bearish crossover detected with bearish divergence.");
                             // Add your trade logic here
                         }
@@ -188,6 +194,67 @@ public class PeriodicTaskService : BackgroundService
             }
         }
 
+    }
+    public async Task TradeAsync(string orderType)
+    {
+        // Initialize the DeltaAPI client with your API key and secret
+        var deltaApi = new DeltaAPI("your_api_key", "your_api_secret");
 
-    } }
+        // Define the symbol and quantity
+        string symbol = "P-BTC-46400-110124";
+        decimal qty = 1;
+
+        // Fetch the ticker information and place the order
+        var (markPrice, productId) = await GetTickerAndProduct(symbol, deltaApi);
+        var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
+
+        // Check the order status and handle it accordingly
+        await ManageOrder(orderResponse, productId, deltaApi);
+    }
+    // Private method to get ticker and product information
+    private static async Task<(decimal, int)> GetTickerAndProduct(string symbol, DeltaAPI deltaApi)
+    {
+        JObject ticker = await deltaApi.GetTickerAsync(symbol);
+        decimal markPrice = ticker["mark_price"].Value<decimal>();
+        int productId = ticker["product_id"].Value<int>();
+        Console.WriteLine($"Mark Price: {markPrice}, Product ID: {productId}");
+        return (markPrice, productId);
+    }
+
+    // Private method to place a limit order
+    private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi)
+    {
+        JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice);
+        Console.WriteLine($"Order placed: {orderResponse}");
+        return orderResponse;
+    }
+
+    // Private method to manage order status and cancellation
+    private static async Task ManageOrder(JObject orderResponse, int productId, DeltaAPI deltaApi)
+    {
+        // Wait for a few seconds before checking the order status
+        await Task.Delay(5000);
+
+        // Check if the order is still open
+        JArray liveOrders = await deltaApi.GetLiveOrdersAsync(productId);
+        if (liveOrders.Count > 0)
+        {
+            foreach (var order in liveOrders)
+            {
+                if (order["id"].Value<string>() == orderResponse["id"].Value<string>())
+                {
+                    Console.WriteLine("Order is still open. Canceling...");
+                    await deltaApi.CancelOrderAsync(order["id"].Value<string>(), productId);
+                    Console.WriteLine("Order canceled.");
+                    return;
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Order filled.");
+        }
+    }
+
+}
 
