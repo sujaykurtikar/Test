@@ -138,52 +138,52 @@ public class PeriodicTaskService : BackgroundService
                 var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
                 var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
 
-                //if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
-                //{
-                //    logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                //    Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
-                //       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                //       latestCrossover.Type,
-                //       latestCrossover.Angle,
-                //       historicalData.FirstOrDefault()?.High ?? 0,
-                //       historicalData.FirstOrDefault()?.Low ?? 0,
-                //       historicalData.FirstOrDefault()?.Open ?? 0,
-                //       historicalData.FirstOrDefault()?.Close ?? 0,
-                //         istrade);
-                //    VolumeDivergence vd = new VolumeDivergence(3, 0.15m);
-                //    bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
-                //    bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
+                if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                {
+                    logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
+                       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                       latestCrossover.Type,
+                       latestCrossover.Angle,
+                       historicalData.FirstOrDefault()?.High ?? 0,
+                       historicalData.FirstOrDefault()?.Low ?? 0,
+                       historicalData.FirstOrDefault()?.Open ?? 0,
+                       historicalData.FirstOrDefault()?.Close ?? 0,
+                         istrade);
+                    VolumeDivergence vd = new VolumeDivergence(3, 0.15m);
+                    bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
+                    bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
 
-                //    Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
-                //    Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
+                    Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
+                    Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
-                //    if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
-                //    {
-                //        _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+                    if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
+                    {
+                        _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
-                //        if (latestCrossover.Type == "Bullish" && isBullishDivergence)
-                //        {
-                //            _logger.LogInformation("Bullish crossover detected with bullish divergence.");
-                //            // Add your trade logic here
-                //        }
-                //        else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
-                //        {
-                //            _logger.LogInformation("Bearish crossover detected with bearish divergence.");
-                //            // Add your trade logic here
-                //        }
-                //        else
-                //        {
-                //            _logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
-                //            Console.WriteLine("NO trade");
-                //        }
-                //    }
-                //    else
-                //    {
-                //      //  _logger.LogWarning("istrade is false or conditions not met. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
-                //    }
-                //}
-                //timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
-                //  Correct Console.WriteLine format
+                        if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+                        {
+                            _logger.LogInformation("Bullish crossover detected with bullish divergence.");
+                            // Add your trade logic here
+                        }
+                        else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+                        {
+                            _logger.LogInformation("Bearish crossover detected with bearish divergence.");
+                            // Add your trade logic here
+                        }
+                        else
+                        {
+                            _logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
+                            Console.WriteLine("NO trade");
+                        }
+                    }
+                    else
+                    {
+                      //  _logger.LogWarning("istrade is false or conditions not met. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+                    }
+                }
+                timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                 // Correct Console.WriteLine format
                
             }
         }
