@@ -198,7 +198,7 @@ public class PeriodicTaskService : BackgroundService
     public async Task TradeAsync(string orderType)
     {
         // Initialize the DeltaAPI client with your API key and secret
-        var deltaApi = new DeltaAPI("39UYXJu80u1qqeE1gsaJo7j5JoGUb0", "M0cbKEVqeeGzghl2MORxyYO6hTyzHrAhCLgevp7XXt26WOzCNEBAhYtqHmep");
+        var deltaApi = new DeltaAPI("VaAxvKNs64yoJneE9XBJcWCnxEgVfn", "KVh7hGEfjo5P2db2SDBG6KSkxBea2A5DLI9CoRD6axheAEZf8eh4AD5hYezT");
 
         // Define the symbol and quantity
         string symbol = "BTCUSD";
