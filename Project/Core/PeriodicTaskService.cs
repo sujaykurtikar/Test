@@ -201,7 +201,7 @@ public class PeriodicTaskService : BackgroundService
         var deltaApi = new DeltaAPI("your_api_key", "your_api_secret");
 
         // Define the symbol and quantity
-        string symbol = "P-BTC-46400-110124";
+        string symbol = "BTCUSD";
         decimal qty = 1;
 
         // Fetch the ticker information and place the order
