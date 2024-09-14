@@ -120,14 +120,16 @@ public class DeltaAPI
                     side = "buy"
                 };
 
+                
+
                 var orderData = new
                 {
                     product_id = productId,
                     size = qty,
                     side = side,
                     limit_price = limitPrice,
-                    order_type = "limit_order",
-                   // stop_order_type = "stop_loss_order",
+                    order_type = "market_order",// "limit_order",
+                    //stop_order_type = "stop_loss_order",
                     stop_price = limitPrice, // Replace "string" with a dynamic value or keep it as a string if necessary
                     trail_amount = "0", // Replace "string" with a dynamic value or keep it as a string if necessary
                     stop_trigger_method = "mark_price",
