@@ -131,7 +131,7 @@ public class PeriodicTaskService : BackgroundService
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
         {
-            var istrade = true //_taskStateService.IsTrade;
+            var istrade = true; //_taskStateService.IsTrade;
            var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
 
             if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
