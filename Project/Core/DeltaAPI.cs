@@ -144,8 +144,8 @@ public class DeltaAPI
                     product_id = productId,
                     size = qty,
                     side = sides,
-                    //limit_price = limitPrice,
-                    order_type = "market_order",//"market_order",// "limit_order",
+                    limit_price = limitPrice,
+                    order_type = "limit_order",//"market_order",// "limit_order",
                     //stop_order_type = "stop_loss_order",
                     //stop_price = limitPrice, // Replace "string" with a dynamic value or keep it as a string if necessary
                     trail_amount = "0", // Replace "string" with a dynamic value or keep it as a string if necessary
