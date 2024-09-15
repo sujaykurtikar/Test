@@ -1,25 +1,44 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\",
+  "WorkspaceRootPath": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\project\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\core\\deltaapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\core\\deltaapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\core\\periodictaskservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\core\\periodictaskservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\core\\testtrend.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\core\\testtrend.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\project\\core\\testchart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\controllers\\controlcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\controllers\\controlcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\sujay.kurtikar\\AppData\\Local\\Temp\\.vsdbgsrc\\1ca169b5f8096b3fd01bc738c77225099d363dea7bb508bd774b256157500bca\\Monitor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\core\\testchart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\core\\testchart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\project\\core\\test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\core\\test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\core\\test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\project\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\project\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|c:\\users\\sujay.kurtikar\\source\\repos\\test\\test\\project\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{18E590E6-ADC2-42E3-BCE2-256E148B110F}|Project\\Project.csproj|solutionrelative:project\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -30,7 +49,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,60 +89,125 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TestTrend.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\TestTrend.cs",
+              "RelativeDocumentMoniker": "Project\\Core\\TestTrend.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\TestTrend.cs",
+              "RelativeToolTip": "Project\\Core\\TestTrend.cs",
+              "ViewState": "AgIAAKEBAAAAAAAAAAAuwLIBAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-15T09:53:16.297Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Monitor.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\AppData\\Local\\Temp\\.vsdbgsrc\\1ca169b5f8096b3fd01bc738c77225099d363dea7bb508bd774b256157500bca\\Monitor.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\AppData\\Local\\Temp\\.vsdbgsrc\\1ca169b5f8096b3fd01bc738c77225099d363dea7bb508bd774b256157500bca\\Monitor.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\AppData\\Local\\Temp\\.vsdbgsrc\\1ca169b5f8096b3fd01bc738c77225099d363dea7bb508bd774b256157500bca\\Monitor.cs [Read Only]",
+              "RelativeToolTip": "..\\..\\..\\..\\AppData\\Local\\Temp\\.vsdbgsrc\\1ca169b5f8096b3fd01bc738c77225099d363dea7bb508bd774b256157500bca\\Monitor.cs [Read Only]",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAmwFcAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-15T08:46:23.205Z",
+              "EditorCaption": " [Read Only]"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "DeltaAPI.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\DeltaAPI.cs",
+              "RelativeDocumentMoniker": "Project\\Core\\DeltaAPI.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\DeltaAPI.cs",
+              "RelativeToolTip": "Project\\Core\\DeltaAPI.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAiwEYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-14T11:28:03.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PeriodicTaskService.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\PeriodicTaskService.cs",
+              "RelativeDocumentMoniker": "Project\\Core\\PeriodicTaskService.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\PeriodicTaskService.cs",
+              "RelativeToolTip": "Project\\Core\\PeriodicTaskService.cs",
+              "ViewState": "AgIAAOMAAAAAAAAAAAAuwPQAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-14T11:21:03.616Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ControlController.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\ControlController.cs",
+              "RelativeDocumentMoniker": "Project\\Controllers\\ControlController.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\ControlController.cs",
+              "RelativeToolTip": "Project\\Controllers\\ControlController.cs",
+              "ViewState": "AgIAAFMAAAAAAAAAAAAMwFsAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-14T11:20:58.726Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "WeatherForecastController.cs",
-              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Controllers\\WeatherForecastController.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\WeatherForecastController.cs",
               "RelativeDocumentMoniker": "Project\\Controllers\\WeatherForecastController.cs",
-              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\WeatherForecastController.cs",
               "RelativeToolTip": "Project\\Controllers\\WeatherForecastController.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAAwBgAAABNAAAA",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwBgAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-30T19:07:05.319Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "TestChart.cs",
-              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Core\\TestChart.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\TestChart.cs",
               "RelativeDocumentMoniker": "Project\\Core\\TestChart.cs",
-              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Core\\TestChart.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\TestChart.cs",
               "RelativeToolTip": "Project\\Core\\TestChart.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAZAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-30T19:04:57.91Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 7,
               "Title": "Test.cs",
-              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Core\\Test.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\Test.cs",
               "RelativeDocumentMoniker": "Project\\Core\\Test.cs",
-              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Core\\Test.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Core\\Test.cs",
               "RelativeToolTip": "Project\\Core\\Test.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-30T19:04:56.224Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 8,
               "Title": "DataController.cs",
-              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Controllers\\DataController.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\DataController.cs",
               "RelativeDocumentMoniker": "Project\\Controllers\\DataController.cs",
-              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Controllers\\DataController.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Controllers\\DataController.cs",
               "RelativeToolTip": "Project\\Controllers\\DataController.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-30T19:04:48.164Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Program.cs",
               "RelativeDocumentMoniker": "Project\\Program.cs",
-              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Project\\Program.cs",
+              "ToolTip": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Program.cs",
               "RelativeToolTip": "Project\\Program.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAiAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",

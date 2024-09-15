@@ -112,13 +112,13 @@ public class DeltaAPI
 
 
                 // Prepare the order data
-                var orderDatad = new
-                {
-                    product_id = 27, // Product ID for BTCUSD is 27
-                    size = 1,
-                    order_type = "market_order",
-                    side = "buy"
-                };
+                //var orderDatad = new
+                //{
+                //    product_id = 27, // Product ID for BTCUSD is 27
+                //    size = 1,
+                //    order_type = "market_order",
+                //    side = "buy"
+                //};
 
                 
 

@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Sujay kurtikar\\Desktop\\Test\\Project\\Project.csproj": {}
+    "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Project.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Sujay kurtikar\\Desktop\\Test\\Project\\Project.csproj": {
+    "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Sujay kurtikar\\Desktop\\Test\\Project\\Project.csproj",
+        "projectUniqueName": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Project.csproj",
         "projectName": "Project",
-        "projectPath": "C:\\Users\\Sujay kurtikar\\Desktop\\Test\\Project\\Project.csproj",
-        "packagesPath": "C:\\Users\\Sujay kurtikar\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Sujay kurtikar\\Desktop\\Test\\Project\\obj\\",
+        "projectPath": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\Project.csproj",
+        "packagesPath": "C:\\Users\\sujay.kurtikar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\sujay.kurtikar\\source\\repos\\Test\\Test\\Project\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Sujay kurtikar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\sujay.kurtikar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
