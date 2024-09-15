@@ -163,50 +163,53 @@ public class PeriodicTaskService : BackgroundService
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
-                        if (latestCrossover.Type == "Bullish")
-                       //if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+                        if (Math.Abs(latestCrossover.Angle) >= 40)
                         {
-                            _logger.LogInformation("Bullish crossover detected with bullish divergence.");
-                            //await TradeAsync("buy");
-                            try
+                            if (latestCrossover.Type == "Bullish")
+                            //if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
-                                await Task.Run(async () =>
+                                _logger.LogInformation("Bullish crossover detected with bullish divergence.");
+                                //await TradeAsync("buy");
+                                try
                                 {
-                                    await TradeAsync("buy");
-                                });
-                            }
-                            catch (Exception ex)
-                            {
-                                // Log or handle the exception
-                                Console.WriteLine($"Exception occurred: {ex.Message}");
-                            }
+                                    await Task.Run(async () =>
+                                    {
+                                        await TradeAsync("buy");
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Log or handle the exception
+                                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                                }
 
-                            // Add your trade logic here
-                        }
-                       // else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
-                        else if (latestCrossover.Type == "Bearish")
-                        {
-                            //
-                            //await TradeAsync("sell");
-                            try
+                                // Add your trade logic here
+                            }
+                            // else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+                            else if (latestCrossover.Type == "Bearish")
                             {
-                                await Task.Run(async () =>
+                                //
+                                //await TradeAsync("sell");
+                                try
                                 {
-                                    await TradeAsync("sell");
-                                });
+                                    await Task.Run(async () =>
+                                    {
+                                        await TradeAsync("sell");
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Log or handle the exception
+                                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                                }
+                                _logger.LogInformation("Bearish crossover detected with bearish divergence.");
+                                // Add your trade logic here
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                // Log or handle the exception
-                                Console.WriteLine($"Exception occurred: {ex.Message}");
+                                _logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
+                                Console.WriteLine("NO trade");
                             }
-                            _logger.LogInformation("Bearish crossover detected with bearish divergence.");
-                            // Add your trade logic here
-                        }
-                        else
-                        {
-                            _logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
-                            Console.WriteLine("NO trade");
                         }
                     }
                     else
