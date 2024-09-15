@@ -127,22 +127,22 @@ public class DeltaAPI
                     product_id = productId,
                     size = qty,
                     side = side,
-                    limit_price = limitPrice,
-                    order_type = "market_order",// "limit_order",
-                    //stop_order_type = "stop_loss_order",
-                    stop_price = limitPrice, // Replace "string" with a dynamic value or keep it as a string if necessary
+                    //limit_price = limitPrice,
+                    order_type = "market_order",//"market_order",// "limit_order",
+                   // stop_order_type = "stop_loss_order",
+                    //stop_price = limitPrice, // Replace "string" with a dynamic value or keep it as a string if necessary
                     trail_amount = "0", // Replace "string" with a dynamic value or keep it as a string if necessary
                     stop_trigger_method = "mark_price",
                     bracket_stop_loss_limit_price = limitPrice - 70, // Replace "string" with a value
                     bracket_stop_loss_price = limitPrice-40, // Replace "string" with a value
-                    bracket_take_profit_limit_price = limitPrice + 100, // Replace "string" with a value
-                    bracket_take_profit_price = limitPrice + 150, // Replace "string" with a value
-                   // time_in_force = "gtc",
-                   // mmp = "disabled",
-                   // post_only = true, // Changed to boolean
-                   // reduce_only = true, // Changed to boolean
-                   // close_on_trigger = true, // Changed to boolean
-                  //  client_order_id = clientOrderId // Replace "string" with a dynamic value
+                    bracket_take_profit_limit_price = limitPrice + 150, // Replace "string" with a value
+                    bracket_take_profit_price = limitPrice + 100, // Replace "string" with a value
+                    //time_in_force = "gtc",
+                    //mmp = "disabled",
+                    //post_only = true, // Changed to boolean
+                    //reduce_only = true, // Changed to boolean
+                    //close_on_trigger = true, // Changed to boolean
+                                             //  client_order_id = clientOrderId // Replace "string" with a dynamic value
                 };
 
                 string body = JsonConvert.SerializeObject(orderData, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
