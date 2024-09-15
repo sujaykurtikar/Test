@@ -191,6 +191,11 @@ public class DeltaAPI
                         // Read and process the response
                         string responseBody = await response.Content.ReadAsStringAsync();
                         var orderResponse = JsonConvert.DeserializeObject<JObject>(responseBody);
+                        var bracket = await PlaceBracketOrderAsync(productId,take_profit_limit_price,take_profit_price,stop_loss_limit_price,stop_loss_price);
+                        if(bracket != null) 
+                        { 
+                        //
+                        }
                         return orderResponse;
                     }
                     else
@@ -219,6 +224,85 @@ public class DeltaAPI
         return null;
     }
 
+    public async Task<JObject> PlaceBracketOrderAsync(int productId, decimal t_limitPrice, decimal t_stop_price, decimal s_limitPrice, decimal s_stop_price) 
+    {
+
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                // Adding headers
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
+
+               var orderData = new
+               {
+                   product_id = productId,
+                   product_symbol = "BTCUSD",
+                   stop_loss_order = new
+                   {
+                       order_type = "limit_order",
+                       stop_price = s_stop_price,
+                       trail_amount = "0",
+                       limit_price = s_limitPrice
+                   },
+                   take_profit_order = new
+                   {
+                       order_type = "limit_order",
+                       stop_price = t_stop_price,
+                       limit_price = t_limitPrice
+                   },
+                   stop_trigger_method = "mark_price"
+               };
+
+                string body = JsonConvert.SerializeObject(orderData, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                string method = "POST";
+                string endpoint = "/v2/orders/bracket";
+                (string signature, string timestamp) = GenerateSignature(method, endpoint, body);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://cdn.india.deltaex.org/v2/orders/bracket")
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")
+                };
+                request.Headers.Add("api-key", _apiKey);
+                request.Headers.Add("signature", signature);
+                request.Headers.Add("timestamp", timestamp);
+
+                try
+                {
+                    HttpResponseMessage response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Read and process the response
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        var orderResponse = JsonConvert.DeserializeObject<JObject>(responseBody);
+                        return orderResponse;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Response error: {await response.Content.ReadAsStringAsync()}");
+                    }
+                    response.EnsureSuccessStatusCode();
+
+
+                    // Console.WriteLine(JsonConvert.SerializeObject(orderResponse, Formatting.Indented));
+                }
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine($"Request error: {e.Message}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Request error: {e.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"General error: {e.Message}");
+            }
+        }
+        return null;
+
+    }
     private static (string, string) GenerateSignature(string method, string endpoint, string payload)
     {
         string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
