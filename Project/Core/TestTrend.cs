@@ -395,8 +395,12 @@ public class VolumeDivergence
 
         for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
         {
-            if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
-                IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+            //if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
+            //   IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+
+
+            if (candlesticks[i].Low < candlesticks[lastIndex].Low &&
+            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
             {
                 return true;
             }
@@ -413,8 +417,12 @@ public class VolumeDivergence
 
         for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
         {
-            if (candlesticks[i].High < candlesticks[lastIndex].High &&
-                IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+            // if (candlesticks[i].High < candlesticks[lastIndex].High &&
+            //    IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+
+
+            if (candlesticks[i].High > candlesticks[lastIndex].High &&
+            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
             {
                 return true;
             }
