@@ -89,11 +89,13 @@ namespace Test_Project.Controllers
             if (!_taskStateService.IsTrade)
             {
                 _taskStateService.IsTrade = true;
-               // _periodicTaskService.Start();
+                // _periodicTaskService.Start();
                 // Ensure the service starts
-                return Ok("Service started.");
+                return Ok($"Service started at {DateTime.Now}.");
             }
-            return BadRequest("Service is already running.");
+
+            return BadRequest($"Service is already running as of {DateTime.Now}.");
+
         }
 
         [HttpPost("stop")]
