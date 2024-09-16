@@ -161,7 +161,7 @@ public class PeriodicTaskService : BackgroundService
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
 
-                    if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5))
+                    if (istrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < 5))
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
