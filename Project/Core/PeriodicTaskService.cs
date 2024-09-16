@@ -123,8 +123,8 @@ public class PeriodicTaskService : BackgroundService
 
         historicalData.Reverse();
 
-        int shortTerm = 5;
-        int longTerm = 15;
+        int shortTerm = 9;
+        int longTerm = 21;
 
         var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
@@ -165,7 +165,7 @@ public class PeriodicTaskService : BackgroundService
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
-                        if (Math.Abs(latestCrossover.Angle) >= 60)
+                        if (Math.Abs(latestCrossover.Angle) >= 40)
                         {
                             if (latestCrossover.Type == "Bullish")
                             //if (latestCrossover.Type == "Bullish" && isBullishDivergence)
