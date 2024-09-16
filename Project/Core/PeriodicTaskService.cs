@@ -159,7 +159,9 @@ public class PeriodicTaskService : BackgroundService
                     Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
                     Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
-                    if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
+                    // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
+
+                    if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5))
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
