@@ -42,8 +42,8 @@ public class TradingController : ControllerBase
         //    historicalData.Reverse();
         //}
 
-        int shortTerm = 5;
-        int longTerm = 15;
+        int shortTerm = 9;
+        int longTerm = 21;
 
         var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
