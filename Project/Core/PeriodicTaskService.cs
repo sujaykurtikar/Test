@@ -165,7 +165,7 @@ public class PeriodicTaskService : BackgroundService
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
-                        if (Math.Abs(latestCrossover.Angle) >= 40)
+                        if (Math.Abs(latestCrossover.Angle) >= 15)
                         {
                             if (latestCrossover.Type == "Bullish")
                             //if (latestCrossover.Type == "Bullish" && isBullishDivergence)
