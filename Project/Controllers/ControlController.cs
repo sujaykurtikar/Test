@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using static Test_Project.Controllers.ControlController;
 
 namespace Test_Project.Controllers
@@ -91,6 +92,7 @@ namespace Test_Project.Controllers
                 _taskStateService.IsTrade = true;
                 // _periodicTaskService.Start();
                 // Ensure the service starts
+               // Log.Information("Service started at {DateTime.Now}.");
                 return Ok($"Service started at {DateTime.Now}.");
             }
 

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
+using Serilog;
 
 public class DeltaAPI
 {
@@ -186,6 +187,7 @@ public class DeltaAPI
                 try
                 {
                     HttpResponseMessage response = await httpClient.SendAsync(request);
+                    Log.Information("Order Response: {@OrderResponse}", response.ToString());
                     if (response.IsSuccessStatusCode)
                     {
                         // Read and process the response
@@ -196,6 +198,8 @@ public class DeltaAPI
                         //{ 
                         ////
                         //}
+                       // Log.Information("Order Response: {@OrderResponse}", orderResponse);
+
                         return orderResponse;
                     }
                     else

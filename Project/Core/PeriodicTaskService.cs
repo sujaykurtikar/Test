@@ -9,6 +9,7 @@ using static Test_Project.Controllers.ControlController;
 using System.Reflection.Metadata;
 using Newtonsoft.Json.Linq;
 using static System.Collections.Specialized.BitVector32;
+using Serilog;
 
 public class PeriodicTaskService : BackgroundService
 {
@@ -158,6 +159,18 @@ public class PeriodicTaskService : BackgroundService
 
                     Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
                     Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
+
+                    Log.Information("Latest Crossover: DateTime: {DateTime}, Type: {Type}, Angle: {Angle}, HIGH: {High}, LOW: {Low}, OPEN: {Open}, CLOSE: {Close}, IsTrade: {IsTrade}, Bullish Divergence: {BullishDivergence}, Bearish Divergence: {BearishDivergence}",
+    istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+    latestCrossover.Type,
+    latestCrossover.Angle,
+    historicalData.FirstOrDefault()?.High ?? 0,
+    historicalData.FirstOrDefault()?.Low ?? 0,
+    historicalData.FirstOrDefault()?.Open ?? 0,
+    historicalData.FirstOrDefault()?.Close ?? 0,
+    istrade,
+    isBullishDivergence,
+    isBearishDivergence);
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
 
