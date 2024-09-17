@@ -6,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 // Add services to the container.
+
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File("Logs/app-log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 
