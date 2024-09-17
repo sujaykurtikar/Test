@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 public class LogsController : ControllerBase
 {
     private readonly string _logFilePath = "Logs"; // Adjust the path as needed
-    private readonly string _logDirectoryPath = Path.Combine(AppContext.BaseDirectory, "Logs"); // Adjust path as needed
 
     [HttpGet("date")]
     public async Task<IActionResult> GetLogsByDate(string date = null)
@@ -17,20 +16,26 @@ public class LogsController : ControllerBase
         {
             DateTime logDate = string.IsNullOrEmpty(date) ? DateTime.Today : DateTime.Parse(date);
             string fileName = $"log-{logDate:yyyyMMdd}.txt"; // Adjust based on your file naming convention
-            string filePath = Path.Combine("Logs", fileName);
+            string filePath = Path.Combine(_logFilePath, fileName);
+            string tempFilePath = Path.GetTempFileName(); // Create a temporary file
 
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound($"Log file for {logDate:yyyy-MM-dd} not found.");
             }
 
-            string logContent;
+            // Copy the log file to a temporary location
+            System.IO.File.Copy(filePath, tempFilePath, overwrite: true);
 
-            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            string logContent;
+            using (var fileStream = new FileStream(tempFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var reader = new StreamReader(fileStream))
             {
                 logContent = await reader.ReadToEndAsync();
             }
+
+            // Delete the temporary file after reading
+            System.IO.File.Delete(tempFilePath);
 
             return Content(logContent, "application/json; charset=utf-8"); // Adjust content type as needed
         }
