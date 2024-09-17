@@ -178,10 +178,10 @@ public class PeriodicTaskService : BackgroundService
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
-                        if (Math.Abs(latestCrossover.Angle) >= 15)
+                       // if (Math.Abs(latestCrossover.Angle) >= 15)
                         {
-                            if (latestCrossover.Type == "Bullish")
-                            //if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+                            //if (latestCrossover.Type == "Bullish")
+                            if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
                                 _logger.LogInformation("Bullish crossover detected with bullish divergence.");
                                 //await TradeAsync("buy");
@@ -200,8 +200,8 @@ public class PeriodicTaskService : BackgroundService
 
                                 // Add your trade logic here
                             }
-                            // else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
-                            else if (latestCrossover.Type == "Bearish")
+                             else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+                            //else if (latestCrossover.Type == "Bearish")
                             {
                                 //
                                 //await TradeAsync("sell");
