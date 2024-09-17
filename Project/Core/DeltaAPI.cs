@@ -187,7 +187,7 @@ public class DeltaAPI
                 try
                 {
                     HttpResponseMessage response = await httpClient.SendAsync(request);
-                    Log.Information("Order Response: {@OrderResponse}", response.ToString());
+                    Log.Information("Order placed: Success={Success}, StatusCode={StatusCode}",response.IsSuccessStatusCode, response.StatusCode);
                     if (response.IsSuccessStatusCode)
                     {
                         // Read and process the response
@@ -198,13 +198,14 @@ public class DeltaAPI
                         //{ 
                         ////
                         //}
-                       // Log.Information("Order Response: {@OrderResponse}", orderResponse);
-
+                        // Log.Information("Order Response: {@OrderResponse}", orderResponse);
+                        Log.Information("Order Response: {@OrderResponse}", orderResponse);
                         return orderResponse;
                     }
                     else
                     {
-                        Console.WriteLine($"Response error: {await response.Content.ReadAsStringAsync()}");
+                        var error = await response.Content.ReadAsStringAsync();
+                        Log.Information("Order failed: {@ErrorContent}", error);
                     }
                     response.EnsureSuccessStatusCode();
 

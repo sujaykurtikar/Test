@@ -18,12 +18,14 @@ public class PeriodicTaskService : BackgroundService
     //private bool _isRunning = true;
     //private CancellationTokenSource _cts;
     private readonly ITaskStateService _taskStateService;
+    private readonly IConfiguration _appSettings;
 
-    public PeriodicTaskService(ILogger<PeriodicTaskService> logger, IServiceScopeFactory serviceScopeFactory, ITaskStateService taskStateService)
+    public PeriodicTaskService(ILogger<PeriodicTaskService> logger, IServiceScopeFactory serviceScopeFactory, ITaskStateService taskStateService, IConfiguration configuration)
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
         _taskStateService = taskStateService;
+        _appSettings = configuration;
     }
 
     private TimeSpan _interval = TimeSpan.FromMinutes(5);
@@ -31,57 +33,6 @@ public class PeriodicTaskService : BackgroundService
     private readonly object _lock = new object();
     string logTime;
     private long count = 0;
-    //public void Start()
-    //{
-    //    lock (_lock)
-    //    {
-    //        Console.WriteLine("PeriodicTaskService is _isRunning = true.");
-    //        _taskStateService.IsRunning = true;
-    //        _isRunning = true;
-    //    }
-    //}
-
-    //public void Stop()
-    //{
-    //    lock (_lock)
-    //    {
-    //        _taskStateService.IsRunning = false;
-    //        _cts.Cancel();
-    //    }
-    //}
-
-    //public bool IsRunning
-    //{
-    //    get
-    //    {
-    //        lock (_lock)
-    //        {
-    //            return _isRunning;
-    //        }
-    //    }
-    //}
-
-    //public PeriodicTaskService(ILogger<PeriodicTaskService> logger, IServiceScopeFactory serviceScopeFactory, ITaskStateService taskStateService)
-    //{
-    //    _logger = logger;
-    //    _serviceScopeFactory = serviceScopeFactory;
-    //    _taskStateService = taskStateService;
-    //}
-
-    //public void Start()
-    //{
-
-    //    _logger.LogInformation("Starting PeriodicTaskService.");
-    //    // Cancel any existing tasks
-    //    _taskStateService.IsTrade = true;
-    //}
-
-    //public void Stop()
-    //{
-    //    _logger.LogInformation("Stopping PeriodicTaskService.");
-    //    _taskStateService.IsTrade = false;
-    //    // Cancel ongoing tasks
-    //}
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -133,8 +84,10 @@ public class PeriodicTaskService : BackgroundService
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
         {
-            var istrade = true; //_taskStateService.IsTrade;
-           var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
+            var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
+
+            //var istrade = true; //_taskStateService.IsTrade;
+            var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
 
             if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
             {
@@ -152,7 +105,7 @@ public class PeriodicTaskService : BackgroundService
                        historicalData.FirstOrDefault()?.Low ?? 0,
                        historicalData.FirstOrDefault()?.Open ?? 0,
                        historicalData.FirstOrDefault()?.Close ?? 0,
-                         istrade);
+                         isTrade);
                     VolumeDivergence vd = new VolumeDivergence(3, 0.15m);
                     bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
                     bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
@@ -161,20 +114,20 @@ public class PeriodicTaskService : BackgroundService
                     Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
                     Log.Information("Latest Crossover: DateTime: {DateTime}, Type: {Type}, Angle: {Angle}, HIGH: {High}, LOW: {Low}, OPEN: {Open}, CLOSE: {Close}, IsTrade: {IsTrade}, Bullish Divergence: {BullishDivergence}, Bearish Divergence: {BearishDivergence}",
-    istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-    latestCrossover.Type,
-    latestCrossover.Angle,
-    historicalData.FirstOrDefault()?.High ?? 0,
-    historicalData.FirstOrDefault()?.Low ?? 0,
-    historicalData.FirstOrDefault()?.Open ?? 0,
-    historicalData.FirstOrDefault()?.Close ?? 0,
-    istrade,
-    isBullishDivergence,
-    isBearishDivergence);
+                       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                       latestCrossover.Type,
+                       latestCrossover.Angle,
+                       historicalData.FirstOrDefault()?.High ?? 0,
+                       historicalData.FirstOrDefault()?.Low ?? 0,
+                       historicalData.FirstOrDefault()?.Open ?? 0,
+                       historicalData.FirstOrDefault()?.Close ?? 0,
+                       isTrade,
+                       isBullishDivergence,
+                       isBearishDivergence);
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
 
-                    if (istrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < 5) && (!(isBullishDivergence && isBearishDivergence)))
+                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     {
                         _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
 
@@ -183,7 +136,7 @@ public class PeriodicTaskService : BackgroundService
                             //if (latestCrossover.Type == "Bullish")
                             if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
-                                _logger.LogInformation("Bullish crossover detected with bullish divergence.");
+                               // _logger.LogInformation("Bullish crossover detected with bullish divergence.");
                                 //await TradeAsync("buy");
                                 try
                                 {
@@ -217,13 +170,13 @@ public class PeriodicTaskService : BackgroundService
                                     // Log or handle the exception
                                     Console.WriteLine($"Exception occurred: {ex.Message}");
                                 }
-                                _logger.LogInformation("Bearish crossover detected with bearish divergence.");
+                               // _logger.LogInformation("Bearish crossover detected with bearish divergence.");
                                 // Add your trade logic here
                             }
                             else
                             {
-                                _logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
-                                Console.WriteLine("NO trade");
+                                //_logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
+                               // Console.WriteLine("NO trade");
                             }
                         }
                     }
@@ -233,8 +186,11 @@ public class PeriodicTaskService : BackgroundService
                     }
                 }
                 timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                if (timestamp.Count() > 3)
+                {
+                    timestamp.RemoveAt(0);
+                }
                  // Correct Console.WriteLine format
-               
             }
         }
 
