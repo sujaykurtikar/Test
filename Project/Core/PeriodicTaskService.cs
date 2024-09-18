@@ -129,9 +129,9 @@ public class PeriodicTaskService : BackgroundService
 
                     if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     {
-                        _logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
-
-                       // if (Math.Abs(latestCrossover.Angle) >= 15)
+                        //_logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+                        Log.Information("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+                        // if (Math.Abs(latestCrossover.Angle) >= 15)
                         {
                             //if (latestCrossover.Type == "Bullish")
                             if (latestCrossover.Type == "Bullish" && isBullishDivergence)
@@ -140,6 +140,8 @@ public class PeriodicTaskService : BackgroundService
                                 //await TradeAsync("buy");
                                 try
                                 {
+                                    Log.Information("Bullish crossover detected with bullish divergence.");
+
                                     await Task.Run(async () =>
                                     {
                                         await TradeAsync("buy");
@@ -147,8 +149,9 @@ public class PeriodicTaskService : BackgroundService
                                 }
                                 catch (Exception ex)
                                 {
+                                    Log.Information($"Exception occurred: {ex.Message}");
                                     // Log or handle the exception
-                                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                                  //  Console.WriteLine($"Exception occurred: {ex.Message}");
                                 }
 
                                 // Add your trade logic here
@@ -160,6 +163,7 @@ public class PeriodicTaskService : BackgroundService
                                 //await TradeAsync("sell");
                                 try
                                 {
+                                    Log.Information("Bearish crossover detected with Bearish divergence.");
                                     await Task.Run(async () =>
                                     {
                                         await TradeAsync("sell");
@@ -167,8 +171,9 @@ public class PeriodicTaskService : BackgroundService
                                 }
                                 catch (Exception ex)
                                 {
+                                    Log.Information($"Exception occurred: {ex.Message}");
                                     // Log or handle the exception
-                                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                                   // Console.WriteLine($"Exception occurred: {ex.Message}");
                                 }
                                // _logger.LogInformation("Bearish crossover detected with bearish divergence.");
                                 // Add your trade logic here
