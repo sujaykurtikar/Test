@@ -96,7 +96,7 @@ namespace Test_Project.Controllers
                 return Ok($"Service started at {DateTime.Now}.");
             }
 
-            return BadRequest($"Service is already running as of {DateTime.Now}.");
+            return BadRequest($"Service is already running as of DateTime.Now {DateTime.Now}.");
 
         }
 
@@ -105,9 +105,9 @@ namespace Test_Project.Controllers
         {
             if (_taskStateService.IsTrade)
             {
-                _taskStateService.IsTrade = false;
+                //_taskStateService.IsTrade = false;
               //  _periodicTaskService.Stop(); // Ensure the service stops
-                return Ok("Service stopped.");
+                return Ok($"Service started at DateTime.UtcNow {DateTime.UtcNow}.");
             }
             return BadRequest("Service is not running.");
         }
