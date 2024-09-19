@@ -10,6 +10,7 @@ using System.Reflection.Metadata;
 using Newtonsoft.Json.Linq;
 using static System.Collections.Specialized.BitVector32;
 using Serilog;
+using static HaramiTradingStrategy;
 
 public class PeriodicTaskService : BackgroundService
 {
@@ -75,12 +76,44 @@ public class PeriodicTaskService : BackgroundService
 
         historicalData.Reverse();
 
-        int shortTerm = 9;
+        int shortTerm = 7;
         int longTerm = 21;
 
         var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
         var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
+
+
+        int emaPeriod1 = 7; // You can change these values as per your requirement
+        int emaPeriod2 = 21;
+
+        var result = TradingAnalyzer.IdentifyCrossover(historicalData, emaPeriod1, emaPeriod2);
+
+        if (result.IsCrossover)
+        {
+            Log.Information(
+       $"Crossover: {result.IsCrossover}, " +
+       $"Type: {result.CrossoverType}, " +
+       $"EMA1 Angle: {result.Ema1Angle}, " +
+       $"EMA2 Angle: {result.Ema2Angle}, " +
+       $"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
+       $"Crossover Candle Close: {result.CrossoverCandleClose}, " +
+       $"Crossover Candle High: {result.CrossoverCandleHigh}, " +
+       $"Crossover Candle Low: {result.CrossoverCandleLow}");
+
+            List<decimal> emaShort = new List<decimal> { 7 };
+            List<decimal> emaLong = new List<decimal> { 21 };
+
+            // Call the FindCrossoverPoint method
+            decimal? crossoverPrice = TradingAnalyzer.FindCrossoverPoint(historicalData, emaShort, emaLong);
+
+            // Output the crossover price if found
+            if (crossoverPrice.HasValue)
+            {
+                Log.Information($"Crossover happened at price: {crossoverPrice.Value}");
+            }
+        }
+
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
         {
@@ -106,7 +139,7 @@ public class PeriodicTaskService : BackgroundService
                        historicalData.FirstOrDefault()?.Open ?? 0,
                        historicalData.FirstOrDefault()?.Close ?? 0,
                          isTrade);
-                    VolumeDivergence vd = new VolumeDivergence(3, 0.15m);
+                    VolumeDivergence vd = new VolumeDivergence(1, 0.15m);
                     bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
                     bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
 
@@ -124,6 +157,9 @@ public class PeriodicTaskService : BackgroundService
                        isTrade,
                        isBullishDivergence,
                        isBearishDivergence);
+
+          //          Log.Information("EMA Crossover Detected: {CrossoverType} Crossover. Short EMA Angle: {ShortEMAAngle}, Long EMA Angle: {LongEMAAngle}",
+          //result.CrossoverType ?? "No crossover", result.Ema1Angle, result.Ema2Angle);
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}",DateTime.UtcNow, utcDateTime,Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
