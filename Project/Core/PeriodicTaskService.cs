@@ -84,10 +84,29 @@ public class PeriodicTaskService : BackgroundService
         var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
 
+        // Load your historical candlestick data
+        //var result = VolumeDryUpBacktest.RunBacktest(historicalData);
+
+        //Console.WriteLine($"Total Trades: {result.TotalTrades}");
+        //Console.WriteLine($"Winning Trades: {result.WinningTrades}");
+        //Console.WriteLine($"Losing Trades: {result.LosingTrades}");
+        //Console.WriteLine($"Total Profit: {result.TotalProfit}");
+        //Console.WriteLine($"Max Drawdown: {result.MaxDrawdown}");
+
+
         int emaPeriod1 = 7; // You can change these values as per your requirement
         int emaPeriod2 = 21;
 
-        var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+        // var results = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+
+
+        var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
+        if (tradeSignal != "No Signal") 
+        {
+            var istDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, istTimeZone);
+            Log.Information($"Trade Signal: {tradeSignal} - {istDateTime}");
+        }
+       
 
         //var result = EmaAnalyzer.IdentifyLatestCrossover(candles, shortTermEmaPeriod, longTermEmaPeriod);
         //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}");
@@ -120,7 +139,7 @@ public class PeriodicTaskService : BackgroundService
         //    {
         //        Log.Information($"Crossover happened at price: {crossoverPrice.Value}");
         //    }
-       // }
+        // }
 
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
