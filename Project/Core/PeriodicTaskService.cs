@@ -87,32 +87,40 @@ public class PeriodicTaskService : BackgroundService
         int emaPeriod1 = 7; // You can change these values as per your requirement
         int emaPeriod2 = 21;
 
-        var result = TradingAnalyzer.IdentifyCrossover(historicalData, emaPeriod1, emaPeriod2);
+        var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
-        if (result.IsCrossover)
-        {
-            Log.Information(
-       $"Crossover: {result.IsCrossover}, " +
-       $"Type: {result.CrossoverType}, " +
-       $"EMA1 Angle: {result.Ema1Angle}, " +
-       $"EMA2 Angle: {result.Ema2Angle}, " +
-       $"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
-       $"Crossover Candle Close: {result.CrossoverCandleClose}, " +
-       $"Crossover Candle High: {result.CrossoverCandleHigh}, " +
-       $"Crossover Candle Low: {result.CrossoverCandleLow}");
+        //var result = EmaAnalyzer.IdentifyLatestCrossover(candles, shortTermEmaPeriod, longTermEmaPeriod);
+        //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}");
+        //Console.WriteLine($"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}");
+        //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
+        //          $"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}, " +
+        //          $"Crossover occurred on candle: Time={result.latestCrossoverCandle.Time}, Open={result.latestCrossoverCandle.Open}, " +
+        //          $"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume}");
 
-            List<decimal> emaShort = new List<decimal> { 7 };
-            List<decimal> emaLong = new List<decimal> { 21 };
+        // if (result.IsCrossover)
+        // {
+        //     Log.Information(
+        //$"Crossover: {result.IsCrossover}, " +
+        //$"Type: {result.CrossoverType}, " +
+        //$"EMA1 Angle: {result.Ema1Angle}, " +
+        //$"EMA2 Angle: {result.Ema2Angle}, " +
+        //$"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
+        //$"Crossover Candle Close: {result.CrossoverCandleClose}, " +
+        //$"Crossover Candle High: {result.CrossoverCandleHigh}, " +
+        //$"Crossover Candle Low: {result.CrossoverCandleLow}");
 
-            // Call the FindCrossoverPoint method
-            decimal? crossoverPrice = TradingAnalyzer.FindCrossoverPoint(historicalData, emaShort, emaLong);
+        //List<decimal> emaShort = new List<decimal> { 7 };
+        //    List<decimal> emaLong = new List<decimal> { 21 };
 
-            // Output the crossover price if found
-            if (crossoverPrice.HasValue)
-            {
-                Log.Information($"Crossover happened at price: {crossoverPrice.Value}");
-            }
-        }
+        //    // Call the FindCrossoverPoint method
+        //    decimal? crossoverPrice = EmaAnalyzer.FindCrossoverPoint(historicalData, emaShort, emaLong);
+
+        //    // Output the crossover price if found
+        //    if (crossoverPrice.HasValue)
+        //    {
+        //        Log.Information($"Crossover happened at price: {crossoverPrice.Value}");
+        //    }
+       // }
 
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
