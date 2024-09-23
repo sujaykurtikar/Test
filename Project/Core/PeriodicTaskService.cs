@@ -79,9 +79,9 @@ public class PeriodicTaskService : BackgroundService
         int shortTerm = 7;
         int longTerm = 21;
 
-        var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
-        var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
-        var latestCrossover1 = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
+        //var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
+       // var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
+        //var latestCrossover1 = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
 
         // Load your historical candlestick data
