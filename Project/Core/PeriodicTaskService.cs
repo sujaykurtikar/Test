@@ -81,7 +81,7 @@ public class PeriodicTaskService : BackgroundService
 
         var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
-        var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
+        var latestCrossover1 = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
 
         // Load your historical candlestick data
@@ -94,10 +94,10 @@ public class PeriodicTaskService : BackgroundService
         //Console.WriteLine($"Max Drawdown: {result.MaxDrawdown}");
 
 
-        int emaPeriod1 = 7; // You can change these values as per your requirement
-        int emaPeriod2 = 21;
+        int emaPeriod1 = 5; // You can change these values as per your requirement
+        int emaPeriod2 = 10;
 
-        // var results = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+         var latestCrossoverEMA= EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
 
         var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
@@ -142,8 +142,10 @@ public class PeriodicTaskService : BackgroundService
         // }
 
         List<string> timestamp = new List<string>();
-        if (latestCrossover != default)
-        {
+       // if (latestCrossover != default)
+
+            if (latestCrossoverEMA != default)
+            {
             var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
 
             //var istrade = true; //_taskStateService.IsTrade;
@@ -151,42 +153,51 @@ public class PeriodicTaskService : BackgroundService
 
             if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
             {
-                var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
+                var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossoverEMA.latestCrossoverCandle.Time).UtcDateTime;
+
+                //var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
                 var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
 
                 if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                 {
                     logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
-                       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                       latestCrossover.Type,
-                       latestCrossover.Angle,
-                       historicalData.FirstOrDefault()?.High ?? 0,
-                       historicalData.FirstOrDefault()?.Low ?? 0,
-                       historicalData.FirstOrDefault()?.Open ?? 0,
-                       historicalData.FirstOrDefault()?.Close ?? 0,
-                         isTrade);
+                    //Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
+                    //   istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    //   latestCrossover.Type,
+                    //   latestCrossover.Angle,
+                    //   historicalData.FirstOrDefault()?.High ?? 0,
+                    //   historicalData.FirstOrDefault()?.Low ?? 0,
+                    //   historicalData.FirstOrDefault()?.Open ?? 0,
+                    //   historicalData.FirstOrDefault()?.Close ?? 0,
+                    //     isTrade);
                     VolumeDivergence vd = new VolumeDivergence(1, 0.15m);
                     bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
                     bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
 
-                    Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
-                    Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
+                    //Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
+                    //Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
-                    Log.Information("Latest Crossover: DateTime: {DateTime}, Type: {Type}, Angle: {Angle}, HIGH: {High}, LOW: {Low}, OPEN: {Open}, CLOSE: {Close}, IsTrade: {IsTrade}, Bullish Divergence: {BullishDivergence}, Bearish Divergence: {BearishDivergence}",
-                       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                       latestCrossover.Type,
-                       latestCrossover.Angle,
-                       historicalData.FirstOrDefault()?.High ?? 0,
-                       historicalData.FirstOrDefault()?.Low ?? 0,
-                       historicalData.FirstOrDefault()?.Open ?? 0,
-                       historicalData.FirstOrDefault()?.Close ?? 0,
-                       isTrade,
-                       isBullishDivergence,
-                       isBearishDivergence);
 
-          //          Log.Information("EMA Crossover Detected: {CrossoverType} Crossover. Short EMA Angle: {ShortEMAAngle}, Long EMA Angle: {LongEMAAngle}",
-          //result.CrossoverType ?? "No crossover", result.Ema1Angle, result.Ema2Angle);
+                    var result = latestCrossoverEMA;
+                    Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
+                              $"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}, " +
+                              $"Crossover occurred on candle: Time={istDateTime.ToString("yyyy-MM-dd HH:mm:ss")}, Open={result.latestCrossoverCandle.Open}, " +
+                              $"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume},"+
+                              $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
+
+                    var latestCrossover = new {Type = result.latestCrossoverType }; 
+                    //   Log.Information(
+                    //$"Crossover: {latestCrossover.IsCrossover}, " +
+                    //$"Type: {result.CrossoverType}, " +
+                    //$"EMA1 Angle: {result.Ema1Angle}, " +
+                    //$"EMA2 Angle: {result.Ema2Angle}, " +
+                    //$"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
+                    //$"Crossover Candle Close: {result.CrossoverCandleClose}, " +
+                    //$"Crossover Candle High: {result.CrossoverCandleHigh}, " +
+                    //$"Crossover Candle Low: {result.CrossoverCandleLow}");
+
+                    //          Log.Information("EMA Crossover Detected: {CrossoverType} Crossover. Short EMA Angle: {ShortEMAAngle}, Long EMA Angle: {LongEMAAngle}",
+                    //result.CrossoverType ?? "No crossover", result.Ema1Angle, result.Ema2Angle);
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}",DateTime.UtcNow, utcDateTime,Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
