@@ -184,8 +184,8 @@ public class PeriodicTaskService : BackgroundService
                     int lookBackPeriod = 3;
                     VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
 
-                    bool isBullishDivergence = detector.IsBullishVolumeDivergence(historicalData);
-                    bool isBearishDivergence = detector.IsBearishVolumeDivergence(historicalData);
+                    bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
+                    bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
                     var result = latestCrossoverEMA;
                     Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
