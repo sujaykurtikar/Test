@@ -66,7 +66,7 @@ public class PeriodicTaskService : BackgroundService
         var startDate = DateTime.UtcNow.AddMinutes(-10000);
         var endDate = DateTime.UtcNow;
 
-        var historicalData = await fetcher.FetchCandles("BTCUSD", "5m", startDate, endDate);
+        var historicalData = await fetcher.FetchCandles("BTCUSD", "3m", startDate, endDate);
 
         var lastcandeltime = historicalData.FirstOrDefault()?.Time;
         var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime ?? 0).UtcDateTime;
