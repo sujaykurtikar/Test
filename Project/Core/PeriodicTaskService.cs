@@ -104,12 +104,12 @@ public class PeriodicTaskService : BackgroundService
         VolumeMovingAverageCalculator calculator = new VolumeMovingAverageCalculator();
         List<decimal> volumeMovingAverages = calculator.CalculateVolumeMovingAverage(historicalData, period);
 
-        var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
-        if (tradeSignal != "No Signal") 
-        {
-            var istDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, istTimeZone);
-            Log.Information($"Trade Signal: {tradeSignal} - {istDateTime}");
-        }
+        //var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
+        //if (tradeSignal != "No Signal") 
+        //{
+        //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, istTimeZone);
+        //    Log.Information($"Trade Signal: {tradeSignal} - {istDateTime}");
+        //}
        
 
         //var result = EmaAnalyzer.IdentifyLatestCrossover(candles, shortTermEmaPeriod, longTermEmaPeriod);
