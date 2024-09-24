@@ -387,93 +387,93 @@ public class VolumeDivergence
     }
 
     // Detects bullish volume divergence
-    //public bool IsBullishVolumeDivergence(List<Candlestick> candlesticks)
-    //{
-    //    if (!IsValidCandlestickList(candlesticks)) return false;
-
-    //    int lastIndex = candlesticks.Count - 1;
-
-    //    for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
-    //    {
-    //        //if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
-    //        //   IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
-
-
-    //        if (candlesticks[i].Low < candlesticks[lastIndex].Low &&
-    //        IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
-    //        {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
-    //// Detects bearish volume divergence
-    //public bool IsBearishVolumeDivergence(List<Candlestick> candlesticks)
-    //{
-    //    if (!IsValidCandlestickList(candlesticks)) return false;
-
-    //    int lastIndex = candlesticks.Count - 1;
-
-    //    for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
-    //    {
-    //        // if (candlesticks[i].High < candlesticks[lastIndex].High &&
-    //        //    IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
-
-
-    //        if (candlesticks[i].High > candlesticks[lastIndex].High &&
-    //        IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
-    //        {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-    // Detects bullish volume divergence
     public bool IsBullishVolumeDivergence(List<Candlestick> candlesticks)
     {
-        // Ensure the list has enough candlesticks
         if (!IsValidCandlestickList(candlesticks)) return false;
 
         int lastIndex = candlesticks.Count - 1;
 
-        // Look for bullish divergence by comparing lows and volume
         for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
         {
-            // Condition for bullish divergence:
-            // A higher low with a significant increase in volume
-            if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
-                IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+            //if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
+            //   IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+
+
+            if (candlesticks[i].Low < candlesticks[lastIndex].Low &&
+            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
             {
                 return true;
             }
         }
-
         return false;
     }
 
     // Detects bearish volume divergence
     public bool IsBearishVolumeDivergence(List<Candlestick> candlesticks)
     {
-        // Ensure the list has enough candlesticks
         if (!IsValidCandlestickList(candlesticks)) return false;
 
         int lastIndex = candlesticks.Count - 1;
 
-        // Look for bearish divergence by comparing highs and volume
         for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
         {
-            // Condition for bearish divergence:
-            // A lower high with a significant increase in volume
-            if (candlesticks[i].High < candlesticks[lastIndex].High &&
-                IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+            // if (candlesticks[i].High < candlesticks[lastIndex].High &&
+            //    IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+
+
+            if (candlesticks[i].High > candlesticks[lastIndex].High &&
+            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
             {
                 return true;
             }
         }
-
         return false;
     }
+    // Detects bullish volume divergence
+    //public bool IsBullishVolumeDivergence(List<Candlestick> candlesticks)
+    //{
+    //    // Ensure the list has enough candlesticks
+    //    if (!IsValidCandlestickList(candlesticks)) return false;
+
+    //    int lastIndex = candlesticks.Count - 1;
+
+    //    // Look for bullish divergence by comparing lows and volume
+    //    for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
+    //    {
+    //        // Condition for bullish divergence:
+    //        // A higher low with a significant increase in volume
+    //        if (candlesticks[i].Low > candlesticks[lastIndex].Low &&
+    //            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+    //        {
+    //            return true;
+    //        }
+    //    }
+
+    //    return false;
+    //}
+
+    //// Detects bearish volume divergence
+    //public bool IsBearishVolumeDivergence(List<Candlestick> candlesticks)
+    //{
+    //    // Ensure the list has enough candlesticks
+    //    if (!IsValidCandlestickList(candlesticks)) return false;
+
+    //    int lastIndex = candlesticks.Count - 1;
+
+    //    // Look for bearish divergence by comparing highs and volume
+    //    for (int i = lastIndex - _lookBackPeriod; i < lastIndex; i++)
+    //    {
+    //        // Condition for bearish divergence:
+    //        // A lower high with a significant increase in volume
+    //        if (candlesticks[i].High < candlesticks[lastIndex].High &&
+    //            IsSignificantVolumeDifference(candlesticks[i].Volume, candlesticks[lastIndex].Volume))
+    //        {
+    //            return true;
+    //        }
+    //    }
+
+    //    return false;
+    //}
 
     // Check if the volume difference is significant based on the threshold
     private bool IsSignificantVolumeDifference(decimal previousVolume, decimal currentVolume)

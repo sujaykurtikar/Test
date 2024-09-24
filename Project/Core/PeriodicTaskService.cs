@@ -170,7 +170,7 @@ public class PeriodicTaskService : BackgroundService
                     //   historicalData.FirstOrDefault()?.Open ?? 0,
                     //   historicalData.FirstOrDefault()?.Close ?? 0,
                     //     isTrade);
-                    VolumeDivergence vd = new VolumeDivergence(1, 0.15m);
+                    VolumeDivergence vd = new VolumeDivergence(2, 0.15m);
                     bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
                     bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
 
