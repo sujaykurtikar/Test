@@ -100,6 +100,10 @@ public class PeriodicTaskService : BackgroundService
          var latestCrossoverEMA= EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
 
+        int period = 3;
+        VolumeMovingAverageCalculator calculator = new VolumeMovingAverageCalculator();
+        List<decimal> volumeMovingAverages = calculator.CalculateVolumeMovingAverage(historicalData, period);
+
         var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
         if (tradeSignal != "No Signal") 
         {
@@ -170,13 +174,18 @@ public class PeriodicTaskService : BackgroundService
                     //   historicalData.FirstOrDefault()?.Open ?? 0,
                     //   historicalData.FirstOrDefault()?.Close ?? 0,
                     //     isTrade);
-                    VolumeDivergence vd = new VolumeDivergence(2, 0.15m);
-                    bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
-                    bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
+                    //VolumeDivergence vd = new VolumeDivergence(2, 0.15m);
+                    //bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
+                    //bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
 
                     //Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
                     //Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
+                    int lookBackPeriod = 3;
+                    VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
+
+                    bool isBullishDivergence = detector.IsBullishVolumeDivergence(historicalData);
+                    bool isBearishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
                     var result = latestCrossoverEMA;
                     Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
