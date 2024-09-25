@@ -181,7 +181,7 @@ public class PeriodicTaskService : BackgroundService
                     //Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
                     //Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
-                    int lookBackPeriod = 3;
+                    int lookBackPeriod = 2;
                     VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
 
                     bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
