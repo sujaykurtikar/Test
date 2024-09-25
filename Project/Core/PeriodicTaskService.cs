@@ -153,7 +153,10 @@ public class PeriodicTaskService : BackgroundService
             var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
 
             //var istrade = true; //_taskStateService.IsTrade;
-            var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
+            var istDateTimenew = DateTime.UtcNow;
+
+            //var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
+
 
             if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
             {
