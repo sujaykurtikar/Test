@@ -187,6 +187,8 @@ public class PeriodicTaskService : BackgroundService
                     bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
                     bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
+                   
+
                     var result = latestCrossoverEMA;
                     Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
                               $"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}, " +
@@ -194,7 +196,16 @@ public class PeriodicTaskService : BackgroundService
                               $"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume},"+
                               $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
 
-                    var latestCrossover = new {Type = result.latestCrossoverType }; 
+                    var latestCrossover = new {Type = result.latestCrossoverType };
+
+                    if (latestCrossover.Type == "Bullish")
+                    {
+                        isBullishDivergence = true;
+                    }
+                    else if (latestCrossover.Type == "Bearish")
+                    {
+                        isBearishDivergence = true;
+                    }
                     //   Log.Information(
                     //$"Crossover: {latestCrossover.IsCrossover}, " +
                     //$"Type: {result.CrossoverType}, " +
