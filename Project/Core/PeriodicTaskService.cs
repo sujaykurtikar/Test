@@ -63,7 +63,8 @@ public class PeriodicTaskService : BackgroundService
         using var scope = _serviceScopeFactory.CreateScope();
         var fetcher = scope.ServiceProvider.GetRequiredService<HistoricalDataFetcher>();
 
-        var startDate = DateTime.UtcNow.AddMinutes(-10000);
+        var startDate = DateTime.UtcNow.AddMinutes(-6000);
+        //var startDate = DateTime.UtcNow.AddMinutes(-10000);
         var endDate = DateTime.UtcNow;
 
         var historicalData = await fetcher.FetchCandles("BTCUSD", "3m", startDate, endDate);
