@@ -184,13 +184,15 @@ public class PeriodicTaskService : BackgroundService
                     //Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
                     //Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
 
-                    int lookBackPeriod = 2;
-                    VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
+                    //int lookBackPeriod = 2;
+                    //VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
 
-                    bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
-                    bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
+                    //bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
+                    //bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
-                   
+                    bool isBearishDivergence = false;
+                    bool isBullishDivergence = false;
+
 
                     var result = latestCrossoverEMA;
                     Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
