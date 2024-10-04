@@ -3,12 +3,14 @@ using System.Net.Http.Headers;
 using static HaramiTradingStrategy;
 using System.Globalization;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 [ApiController]
 [Route("[controller]")]
 public class TradingController : ControllerBase
 {
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(5);
+
     [HttpGet(Name = "GetTest")]
     public async Task<IActionResult> GetTest()
     {
@@ -76,6 +78,67 @@ public class TradingController : ControllerBase
         else
         {
             return NoContent(); // Or any other appropriate status code
+        }
+    }
+
+    [HttpGet("fetch-latest-crossover")]
+    public async Task<IActionResult> FetchLatestCrossover()
+    {
+        try
+        {
+            var startDate = DateTime.UtcNow.AddMinutes(-6000);
+            
+            var endDate = DateTime.UtcNow;
+            var fetcher = new HistoricalDataFetcher();
+            var resolution = "3m";
+           
+            var symbol = "BTCUSD";
+            
+            List<Candlestick> historicalData = await fetcher.FetchCandles(symbol, resolution, startDate, endDate);
+            var lastcandeltime = historicalData.FirstOrDefault().Time;
+            historicalData.Reverse();
+            
+
+            historicalData.Reverse();
+
+            int shortTerm = 7;
+            int longTerm = 21;
+
+
+
+            int emaPeriod1 = 5; // You can change these values as per your requirement
+            int emaPeriod2 = 10;
+
+            var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+
+            // Convert the crossover candle time to IST
+            var istDateTime = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTimeOffset.FromUnixTimeMilliseconds(result.latestCrossoverCandle.Time).UtcDateTime,
+                TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+            );
+
+            // Log the result
+           
+            return Ok(new
+            {
+                LatestCrossoverType = result.latestCrossoverType,
+                LatestCrossoverIndex = result.latestCrossoverIndex,
+                LatestEma1Angle = result.latestEma1Angle,
+                LatestEma2Angle = result.latestEma2Angle,
+                CrossoverCandle = new
+                {
+                    Time = istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    result.latestCrossoverCandle.Open,
+                    result.latestCrossoverCandle.High,
+                    result.latestCrossoverCandle.Low,
+                    result.latestCrossoverCandle.Close,
+                    result.latestCrossoverCandle.Volume
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal server error");
         }
     }
 }

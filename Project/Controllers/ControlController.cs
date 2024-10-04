@@ -99,8 +99,13 @@ namespace Test_Project.Controllers
 
             DateTime istDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, istTimeZone);
 
-            return Ok($"local-{DateTime.Now}, localTimeZone -{localTimeZone.DisplayName}, UTC -{utcDateTime}, IST-{istDateTime} ");
-
+            return Ok(new
+            {
+                LocalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                LocalTimeZone = localTimeZone.DisplayName,
+                UtcTime = utcDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                IstTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss")
+            });
         }
 
         [HttpPost("stop")]
