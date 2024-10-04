@@ -87,16 +87,19 @@ namespace Test_Project.Controllers
         [HttpPost("start")]
         public IActionResult Start()
         {
-            if (!_taskStateService.IsTrade)
-            {
-                _taskStateService.IsTrade = true;
-                // _periodicTaskService.Start();
-                // Ensure the service starts
-               // Log.Information("Service started at {DateTime.Now}.");
-                return Ok($"Service started at {DateTime.Now}.");
-            }
 
-            return BadRequest($"Service is already running as of DateTime.Now {DateTime.Now}.");
+            // _periodicTaskService.Start();
+            // Ensure the service starts
+            // Log.Information("Service started at {DateTime.Now}.");
+
+            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+            DateTime utcDateTime = DateTime.UtcNow;
+
+            TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+            DateTime istDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, istTimeZone);
+
+            return Ok($"local-{DateTime.Now}, localTimeZone -{localTimeZone.DisplayName}, UTC -{utcDateTime}, IST-{istDateTime} ");
 
         }
 
