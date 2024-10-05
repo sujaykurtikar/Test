@@ -107,9 +107,7 @@ public class TradingController : ControllerBase
             List<Candlestick> historicalData = await fetcher.FetchCandles(symbol, resolution, startDate, endDate);
             var lastcandeltime = historicalData.FirstOrDefault().Time;
             historicalData.Reverse();
-            
-
-            historicalData.Reverse();
+           
 
             int shortTerm = 7;
             int longTerm = 21;

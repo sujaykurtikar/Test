@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendline Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="trendlineChart" width="400" height="200"></canvas>
+    <script>
+        const ctx = document.getElementById('trendlineChart').getContext('2d');
+
+        const trendlines = {{trendlines}}; // Placeholder for trendlines data
+
+        const data = {
+            labels: trendlines.map(t => `(${t.start.x}, ${t.start.y}) to (${t.end.x}, ${t.end.y})`),
+            datasets: [{
+                label: 'Trendlines',
+                data: trendlines.map(t => ({
+                    x: t.start.x,
+                    y: t.start.y
+                })),
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: false,
+            }]
+        };
+
+        const trendlineChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
