@@ -4,18 +4,24 @@ using static HaramiTradingStrategy;
 using System.Globalization;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using static Test_Project.Controllers.ControlController;
 
 [ApiController]
 [Route("[controller]")]
 public class TradingController : ControllerBase
 {
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(5);
+    private readonly IConfiguration _appSettings;
 
+    public TradingController(IConfiguration configuration)
+    {
+        _appSettings = configuration;
+    }
     [HttpGet(Name = "GetTest")]
     public async Task<IActionResult> GetTest()
     {
         var fetcher = new HistoricalDataFetcher();
-        var resolution = "5m";
+        var resolution = _appSettings.GetValue<string>("Resolution");// var resolution = "5m";
         var startDate = DateTime.UtcNow.AddMinutes(-10000);
         //var startDate = DateTime.UtcNow.AddMinutes(-2000 *5); // 2000 minutes ago
         var endDate = DateTime.UtcNow;
@@ -44,8 +50,11 @@ public class TradingController : ControllerBase
         //    historicalData.Reverse();
         //}
 
-        int shortTerm = 9;
-        int longTerm = 21;
+        //int shortTerm = 9;
+        //int longTerm = 21;
+
+        var shortTerm = _appSettings.GetValue<int>("Period:Period1");
+        var longTerm = _appSettings.GetValue<int>("Period:Period2");
 
         var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
@@ -90,7 +99,8 @@ public class TradingController : ControllerBase
             
             var endDate = DateTime.UtcNow;
             var fetcher = new HistoricalDataFetcher();
-            var resolution = "3m";
+
+            var resolution = _appSettings.GetValue<string>("Resolution");// "3m";
            
             var symbol = "BTCUSD";
             
@@ -104,21 +114,16 @@ public class TradingController : ControllerBase
             int shortTerm = 7;
             int longTerm = 21;
 
-
-
-            int emaPeriod1 = 5; // You can change these values as per your requirement
-            int emaPeriod2 = 10;
+            var emaPeriod1 = _appSettings.GetValue<int>("Period:Period1");
+            var emaPeriod2 = _appSettings.GetValue<int>("Period:Period2");
 
             var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
             // Convert the crossover candle time to IST
-            var istDateTime = TimeZoneInfo.ConvertTimeFromUtc(
-                DateTimeOffset.FromUnixTimeMilliseconds(result.latestCrossoverCandle.Time).UtcDateTime,
-                TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
-            );
+            var istDateTime = DateTimeOffset.FromUnixTimeSeconds(result.latestCrossoverCandle.Time).UtcDateTime;
 
             // Log the result
-           
+
             return Ok(new
             {
                 LatestCrossoverType = result.latestCrossoverType,

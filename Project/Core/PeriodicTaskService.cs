@@ -66,8 +66,8 @@ public class PeriodicTaskService : BackgroundService
         var startDate = DateTime.UtcNow.AddMinutes(-6000);
         //var startDate = DateTime.UtcNow.AddMinutes(-10000);
         var endDate = DateTime.UtcNow;
-
-        var historicalData = await fetcher.FetchCandles("BTCUSD", "3m", startDate, endDate);
+        var resolution = _appSettings.GetValue<string>("Resolution");
+        var historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
 
         var lastcandeltime = historicalData.FirstOrDefault()?.Time;
         var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime ?? 0).UtcDateTime;
@@ -95,10 +95,13 @@ public class PeriodicTaskService : BackgroundService
         //Console.WriteLine($"Max Drawdown: {result.MaxDrawdown}");
 
 
-        int emaPeriod1 = 5; // You can change these values as per your requirement
-        int emaPeriod2 = 10;
+        //int emaPeriod1 = 5; // You can change these values as per your requirement
+        //int emaPeriod2 = 10;
 
-         var latestCrossoverEMA= EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+        var emaPeriod1 = _appSettings.GetValue<int>("Period:Period1");
+        var emaPeriod2 = _appSettings.GetValue<int>("Period:Period2");
+
+        var latestCrossoverEMA= EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
 
         int period = 3;
