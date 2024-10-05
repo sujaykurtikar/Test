@@ -118,7 +118,9 @@ public class TradingController : ControllerBase
             var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
             // Convert the crossover candle time to IST
-            var istDateTime = DateTimeOffset.FromUnixTimeSeconds(result.latestCrossoverCandle.Time).UtcDateTime;
+            var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(result.latestCrossoverCandle.Time).UtcDateTime;
+            var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
 
             // Log the result
 
