@@ -21,8 +21,9 @@ public class TradingController : ControllerBase
     public async Task<IActionResult> GetTest()
     {
         var fetcher = new HistoricalDataFetcher();
-        var resolution = _appSettings.GetValue<string>("Resolution");// var resolution = "5m";
-        var startDate = DateTime.UtcNow.AddMinutes(-10000);
+        var resolution = _appSettings.GetValue<string>("Resolution");
+        int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
+        var startDate = DateTime.UtcNow.AddMinutes(-(2000 * value)); // max 2000
         //var startDate = DateTime.UtcNow.AddMinutes(-2000 *5); // 2000 minutes ago
         var endDate = DateTime.UtcNow;
         var symbol = "BTCUSD";
@@ -95,13 +96,15 @@ public class TradingController : ControllerBase
     {
         try
         {
-            var startDate = DateTime.UtcNow.AddMinutes(-6000);
+           // var startDate = DateTime.UtcNow.AddMinutes(-6000);
             
             var endDate = DateTime.UtcNow;
             var fetcher = new HistoricalDataFetcher();
 
-            var resolution = _appSettings.GetValue<string>("Resolution");// "3m";
-           
+            var resolution = _appSettings.GetValue<string>("Resolution");
+            int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
+            var startDate = DateTime.UtcNow.AddMinutes(-(2000 * value)); // max 2000
+
             var symbol = "BTCUSD";
             
             List<Candlestick> historicalData = await fetcher.FetchCandles(symbol, resolution, startDate, endDate);

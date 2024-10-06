@@ -63,10 +63,11 @@ public class PeriodicTaskService : BackgroundService
         using var scope = _serviceScopeFactory.CreateScope();
         var fetcher = scope.ServiceProvider.GetRequiredService<HistoricalDataFetcher>();
 
-        var startDate = DateTime.UtcNow.AddMinutes(-6000);
+        var resolution = _appSettings.GetValue<string>("Resolution");
+        int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
+        var startDate = DateTime.UtcNow.AddMinutes(-(2000* value)); // max 2000
         //var startDate = DateTime.UtcNow.AddMinutes(-10000);
         var endDate = DateTime.UtcNow;
-        var resolution = _appSettings.GetValue<string>("Resolution");
         var historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
 
         var lastcandeltime = historicalData.FirstOrDefault()?.Time;
@@ -194,9 +195,13 @@ public class PeriodicTaskService : BackgroundService
                     //bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
                     //bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
-                    bool isBearishDivergence = false;
-                    bool isBullishDivergence = false;
+                   
+                    ImpulseMACDIndicator indicator = new ImpulseMACDIndicator();
+                    string latestSignal = indicator.GetLatestImpulseMACDSignal(historicalData);
 
+                    bool isBearishDivergence = latestSignal == "Sell" ? true : false;
+                    bool isBullishDivergence = latestSignal == "Buy" ? true : false;
+                    Log.Information($"The latest signal is: {latestSignal}");
 
                     var result = latestCrossoverEMA;
                     Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
@@ -207,14 +212,14 @@ public class PeriodicTaskService : BackgroundService
 
                     var latestCrossover = new {Type = result.latestCrossoverType };
 
-                    if (latestCrossover.Type == "Bullish")
-                    {
-                        isBullishDivergence = true;
-                    }
-                    else if (latestCrossover.Type == "Bearish")
-                    {
-                        isBearishDivergence = true;
-                    }
+                    //if (latestCrossover.Type == "Bullish")
+                    //{
+                    //    isBullishDivergence = true;
+                    //}
+                    //else if (latestCrossover.Type == "Bearish")
+                    //{
+                    //    isBearishDivergence = true;
+                    //}
                     //   Log.Information(
                     //$"Crossover: {latestCrossover.IsCrossover}, " +
                     //$"Type: {result.CrossoverType}, " +
@@ -235,6 +240,7 @@ public class PeriodicTaskService : BackgroundService
                         //_logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
                         Log.Information("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
                         // if (Math.Abs(latestCrossover.Angle) >= 15)
+
                         {
                             //if (latestCrossover.Type == "Bullish")
                             if (latestCrossover.Type == "Bullish" && isBullishDivergence)
