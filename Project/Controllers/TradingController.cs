@@ -121,7 +121,7 @@ public class TradingController : ControllerBase
             var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
 
             // Convert the crossover candle time to IST
-            var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(result.latestCrossoverCandle.Time).UtcDateTime;
+            var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(result.CrossoverCandle.Time).UtcDateTime;
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
 
@@ -129,18 +129,18 @@ public class TradingController : ControllerBase
 
             return Ok(new
             {
-                LatestCrossoverType = result.latestCrossoverType,
-                LatestCrossoverIndex = result.latestCrossoverIndex,
-                LatestEma1Angle = result.latestEma1Angle,
-                LatestEma2Angle = result.latestEma2Angle,
+                LatestCrossoverType = result.CrossoverType,
+                //LatestCrossoverIndex = result.CrossoverIndex,
+                //LatestEma1Angle = ema1Angle,
+                //LatestEma2Angle = ema2Angle,
                 CrossoverCandle = new
                 {
                     Time = istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                    result.latestCrossoverCandle.Open,
-                    result.latestCrossoverCandle.High,
-                    result.latestCrossoverCandle.Low,
-                    result.latestCrossoverCandle.Close,
-                    result.latestCrossoverCandle.Volume
+                    Open = result.CrossoverCandle.Open,
+                    High = result.CrossoverCandle.High,
+                    Low = result.CrossoverCandle.Low,
+                    Close = result.CrossoverCandle.Close,
+                    Volume = result.CrossoverCandle.Volume
                 }
             });
         }
