@@ -29,29 +29,46 @@ public class EmaAnalyzer
         var emaShort = emas["Short"];
         var emaLong = emas["Long"];
 
-        // Check for latest crossover
-        for (int i = emaShort.Count - 1; i > 0; i--)
-        {
-            if (IsCrossover(emaShort[i - 1], emaShort[i], emaLong[i - 1], emaLong[i], out string crossoverType))
+        // Check for the latest crossover using LINQ
+        var crossover = emaShort
+            .Select((shortEma, index) => new
             {
-                // Calculate exact crossover price
-                decimal crossoverPrice = CalculateExactCrossoverPrice(candles[i - 1], candles[i], emaShort[i - 1].Value, emaShort[i].Value, emaLong[i - 1].Value, emaLong[i].Value);
-                return (true, crossoverType, crossoverPrice, candles[i]);
-            }
+                ShortEma = shortEma,
+                LongEma = emaLong.ElementAtOrDefault(index),
+                PreviousShortEma = emaShort.ElementAtOrDefault(index - 1),
+                PreviousLongEma = emaLong.ElementAtOrDefault(index - 1),
+                Index = index
+            })
+            .Where(x => x.Index > 0 && x.PreviousShortEma != default && x.PreviousLongEma != default &&
+                        IsCrossover(x.PreviousShortEma.Value, x.ShortEma.Value, x.PreviousLongEma.Value, x.LongEma.Value, out string crossoverType))
+            .Select(x => new
+            {
+                IsCrossover = true,
+                CrossoverType = x.PreviousShortEma.Value < x.PreviousLongEma.Value && x.ShortEma.Value > x.LongEma.Value ? "Bullish" :
+                                x.PreviousShortEma.Value > x.PreviousLongEma.Value && x.ShortEma.Value < x.LongEma.Value ? "Bearish" : "None",
+                CrossoverPrice = CalculateExactCrossoverPrice(candles[x.Index - 1], candles[x.Index], x.PreviousShortEma.Value, x.ShortEma.Value, x.PreviousLongEma.Value, x.LongEma.Value),
+                CrossoverCandle = candles[x.Index]
+            })
+            .LastOrDefault(); // Get the latest crossover
+
+        if (crossover != null)
+        {
+            return (crossover.IsCrossover, crossover.CrossoverType, crossover.CrossoverPrice, crossover.CrossoverCandle);
         }
 
         return (false, "None", 0m, null);
     }
 
-    private static bool IsCrossover((long Timestamp, decimal Value) prevShort, (long Timestamp, decimal Value) currentShort, (long Timestamp, decimal Value) prevLong, (long Timestamp, decimal Value) currentLong, out string crossoverType)
+
+    private static bool IsCrossover(decimal prevShort, decimal currentShort, decimal prevLong, decimal currentLong, out string crossoverType)
     {
         crossoverType = "";
-        if (prevShort.Value < prevLong.Value && currentShort.Value > currentLong.Value)
+        if (prevShort < prevLong && currentShort > currentLong)
         {
             crossoverType = "Bullish";
             return true;
         }
-        else if (prevShort.Value > prevLong.Value && currentShort.Value < currentLong.Value)
+        else if (prevShort > prevLong && currentShort < currentLong)
         {
             crossoverType = "Bearish";
             return true;
@@ -87,6 +104,9 @@ public class EmaAnalyzer
 
     private static List<(long Timestamp, decimal Value)> CalculateSingleEma(List<Candlestick> candles, int period)
     {
+        if (candles.Count < period)
+            throw new ArgumentException("Insufficient candlesticks to calculate the EMA.");
+
         var emaList = new List<(long, decimal)>();
         var multiplier = 2m / (period + 1);
         decimal emaPrev = candles.Take(period).Average(c => c.Close);
