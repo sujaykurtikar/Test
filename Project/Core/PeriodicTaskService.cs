@@ -81,7 +81,7 @@ public class PeriodicTaskService : BackgroundService
         int shortTerm = 7;
         int longTerm = 21;
 
-        //var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
+      //  var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
        // var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
         //var latestCrossover1 = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
@@ -102,8 +102,10 @@ public class PeriodicTaskService : BackgroundService
         var emaPeriod1 = _appSettings.GetValue<int>("Period:Period1");
         var emaPeriod2 = _appSettings.GetValue<int>("Period:Period2");
 
-        var latestCrossoverEMA= EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
-
+        //var latestCrossoverEMA= EmaAnalyzer.CalculateEmas(historicalData, emaPeriod1, emaPeriod2);
+        var emas = EmaAnalyzer.CalculateEmas(historicalData, emaPeriod1, emaPeriod2);
+        var angles = EmaAnalyzer.CalculateEmaAngles(emas);
+        var latestCrossoverEMA = EmaAnalyzer.IdentifyEmaCrossoversAndAngles(emas, angles).LastOrDefault();
 
         int period = 3;
         VolumeMovingAverageCalculator calculator = new VolumeMovingAverageCalculator();
@@ -165,7 +167,7 @@ public class PeriodicTaskService : BackgroundService
 
             if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
             {
-                var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossoverEMA.CrossoverCandle.Time).UtcDateTime;
+                var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossoverEMA.Timestamp).UtcDateTime;
 
                 //var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
                 var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
@@ -210,15 +212,20 @@ public class PeriodicTaskService : BackgroundService
                     //          $"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume},"+
                     //          $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
 
-                    Log.Information($"Latest Crossover: {result.CrossoverType} " +
-                            $"Crossover Price: {result.CrossoverPrice}, " +
-                            $"Crossover occurred on candle: Time={istDateTime:yyyy-MM-dd HH:mm:ss}, " +
-                            $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
-                            $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
-                            $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
+                    //Log.Information($"Latest Crossover: {result.CrossoverType} " +
+                    //        $"Crossover Price: {result.CrossoverPrice}, " +
+                    //        $"Crossover occurred on candle: Time={istDateTime:yyyy-MM-dd HH:mm:ss}, " +
+                    //        $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
+                    //        $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
+                    //        $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
+                    var crossoverCandle = historicalData.FirstOrDefault(c => c.Time == latestCrossoverEMA.Timestamp);
 
+                Log.Information($"Crossover at Timestamp {istDateTime}, " +
+              $"Type: {latestCrossoverEMA.Type}, Angle: {latestCrossoverEMA.Angle}° " +
+              $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
+              $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}");
 
-                    var latestCrossover = new {Type = result.CrossoverType };
+                var latestCrossover = new {Type = latestCrossoverEMA.Type };
 
                     //if (latestCrossover.Type == "Bullish")
                     //{

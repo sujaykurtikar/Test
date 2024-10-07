@@ -118,31 +118,33 @@ public class TradingController : ControllerBase
             var emaPeriod1 = _appSettings.GetValue<int>("Period:Period1");
             var emaPeriod2 = _appSettings.GetValue<int>("Period:Period2");
 
-            var result = EmaAnalyzer.IdentifyLatestCrossover(historicalData, emaPeriod1, emaPeriod2);
+            var emas = EmaAnalyzer.CalculateEmas(historicalData, emaPeriod1, emaPeriod2);
+            var angles = EmaAnalyzer.CalculateEmaAngles(emas);
+            var latestCrossoverEMA = EmaAnalyzer.IdentifyEmaCrossoversAndAngles(emas, angles).LastOrDefault();
 
             // Convert the crossover candle time to IST
-            var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(result.CrossoverCandle.Time).UtcDateTime;
+            var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossoverEMA.Timestamp).UtcDateTime;
+
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
-
+            var result = historicalData.FirstOrDefault(c => c.Time == latestCrossoverEMA.Timestamp);
             // Log the result
 
-            return Ok(new
+            var latestCrossover = new
             {
-                LatestCrossoverType = result.CrossoverType,
-                //LatestCrossoverIndex = result.CrossoverIndex,
-                //LatestEma1Angle = ema1Angle,
-                //LatestEma2Angle = ema2Angle,
+                Type = latestCrossoverEMA.Type,
+                CrossoverTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
                 CrossoverCandle = new
                 {
-                    Time = istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Open = result.CrossoverCandle.Open,
-                    High = result.CrossoverCandle.High,
-                    Low = result.CrossoverCandle.Low,
-                    Close = result.CrossoverCandle.Close,
-                    Volume = result.CrossoverCandle.Volume
-                }
-            });
+                    Open = result.Open,
+                    High = result.High,
+                    Low = result.Low,
+                    Close = result.Close,
+                    Volume = result.Volume
+                },
+                Angle = latestCrossoverEMA.Angle // Adding the angle to the crossover data
+            };
+            return Ok(latestCrossover);
         }
         catch (Exception ex)
         {
