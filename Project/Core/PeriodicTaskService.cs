@@ -33,6 +33,7 @@ public class PeriodicTaskService : BackgroundService
     private bool _isRunning = false;
     private readonly object _lock = new object();
     string logTime;
+    string ImpulseMACDIndicator;
     private long count = 0;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -111,13 +112,23 @@ public class PeriodicTaskService : BackgroundService
         VolumeMovingAverageCalculator calculator = new VolumeMovingAverageCalculator();
         List<decimal> volumeMovingAverages = calculator.CalculateVolumeMovingAverage(historicalData, period);
 
+
+        ImpulseMACDIndicator indicator1 = new ImpulseMACDIndicator();
+        string latestSignaltest = indicator1.GetLatestImpulseMACDSignal(historicalData);
+        if (latestSignaltest != null && ImpulseMACDIndicator != latestSignaltest) 
+        {
+            ImpulseMACDIndicator = latestSignaltest;
+            DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
+            Log.Information($"The latest signal is: {latestSignaltest}, Current IST Time: {indianTime}");
+        }
+
         //var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
         //if (tradeSignal != "No Signal") 
         //{
         //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, istTimeZone);
         //    Log.Information($"Trade Signal: {tradeSignal} - {istDateTime}");
         //}
-       
+
 
         //var result = EmaAnalyzer.IdentifyLatestCrossover(candles, shortTermEmaPeriod, longTermEmaPeriod);
         //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}");
