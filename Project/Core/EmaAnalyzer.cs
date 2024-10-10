@@ -44,6 +44,7 @@ public class EmaAnalyzer
         for (int i = 0; i < candles.Count; i++)
         {
             var closePrice = candles[i].Close;
+
             if (i < period - 1)
             {
                 continue; // Not enough data for the initial EMA
@@ -60,7 +61,10 @@ public class EmaAnalyzer
                 previousEma = ((closePrice - previousEma) * multiplier) + previousEma;
             }
 
-            emaList.Add((candles[i].Time, previousEma.Value));
+            if (previousEma.HasValue)
+            {
+                emaList.Add((candles[i].Time, previousEma.Value));
+            }
         }
     }
 
@@ -112,8 +116,8 @@ public class EmaAnalyzer
 
         var shortEma = emas["Short"];
         var longEma = emas["Long"];
-        var shortAngle = angles.ContainsKey("Short") ? angles["Short"] : new List<(long Timestamp, decimal?)>();
-        var longAngle = angles.ContainsKey("Long") ? angles["Long"] : new List<(long Timestamp, decimal?)>();
+        var shortAngle = angles["Short"];
+        var longAngle = angles["Long"];
 
         var combined = from sEma in shortEma
                        join lEma in longEma on sEma.Timestamp equals lEma.Timestamp
@@ -135,10 +139,12 @@ public class EmaAnalyzer
             var prev = combined.ElementAt(i - 1);
             var current = combined.ElementAt(i);
 
+            // Check for Bullish Crossover
             if (prev.ShortEma < prev.LongEma && current.ShortEma > current.LongEma)
             {
                 crossovers.Add((current.Timestamp, "Bullish", current.ShortAngle));
             }
+            // Check for Bearish Crossover
             else if (prev.ShortEma > prev.LongEma && current.ShortEma < current.LongEma)
             {
                 crossovers.Add((current.Timestamp, "Bearish", current.ShortAngle));
@@ -147,6 +153,4 @@ public class EmaAnalyzer
 
         return crossovers;
     }
-
 }
-

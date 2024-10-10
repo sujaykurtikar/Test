@@ -34,7 +34,9 @@ public class PeriodicTaskService : BackgroundService
     private readonly object _lock = new object();
     string logTime;
     string ImpulseMACDIndicator;
+    string trendML;
     private long count = 0;
+    private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -121,6 +123,19 @@ public class PeriodicTaskService : BackgroundService
             DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
             Log.Information($"The latest signal is: {latestSignaltest}, Current IST Time: {indianTime}");
         }
+
+        var candlestickModelManager = new CandlestickModelManager();
+
+        string predictedTrend = candlestickModelManager.PredictTrend(historicalData.LastOrDefault());
+        if (predictedTrend != null && trendML != predictedTrend)
+        {
+            trendML = predictedTrend;
+            DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
+            Log.Information($"Predicted trend direction: {predictedTrend}, Current IST Time: {indianTime}");
+        }
+        // Call the prediction method
+        
+        
 
         //var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
         //if (tradeSignal != "No Signal") 
@@ -330,7 +345,15 @@ public class PeriodicTaskService : BackgroundService
                 {
                     timestamp.RemoveAt(0);
                 }
-                 // Correct Console.WriteLine format
+                // Correct Console.WriteLine format
+
+
+
+                if (DateTime.Now >= nextUpdateTime)
+                {
+                    candlestickModelManager.CheckAndUpdateModelAsync(historicalData);
+                    nextUpdateTime = DateTime.Now.AddHours(24); // Set the next update time to 24 hours from now
+                }
             }
         }
 

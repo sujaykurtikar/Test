@@ -65,3 +65,12 @@ C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\obj\Debug\net8.0\refint\P
 C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\obj\Debug\net8.0\Project.pdb
 C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\obj\Debug\net8.0\Project.genruntimeconfig.cache
 C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\obj\Debug\net8.0\ref\Project.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\Microsoft.Build.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\Microsoft.Build.Framework.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\Microsoft.NET.StringTools.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\NLog.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\Serilog.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\Serilog.Sinks.File.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\System.Reflection.MetadataLoadContext.dll
+C:\Users\sujay.kurtikar\source\repos\Test\Test\Project\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
