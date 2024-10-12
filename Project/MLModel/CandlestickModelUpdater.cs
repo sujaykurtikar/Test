@@ -2,20 +2,15 @@
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 
-//public class Candlestick
-//{
-//    public long Time { get; set; }
-//    public decimal Open { get; set; }
-//    public decimal High { get; set; }
-//    public decimal Low { get; set; }
-//    public decimal Close { get; set; }
-//    public long Volume { get; set; }
-//}
+// Define the Candlestick class
 
+
+// Define the prediction result class
 public class CandlestickPrediction
 {
     [ColumnName("PredictedLabel")]
@@ -23,63 +18,100 @@ public class CandlestickPrediction
     public float[] Score { get; set; }
 }
 
+// Manage the candlestick model
 public class CandlestickModelManager
 {
     private readonly MLContext mlContext;
     private ITransformer model;
-    private List<Candlestick> candlestickData;
+    private readonly ConcurrentBag<Candlestick> candlestickData; // Thread-safe collection
     private DateTime lastUpdateTime;
 
     public CandlestickModelManager()
     {
         mlContext = new MLContext();
-        candlestickData = new List<Candlestick>();
+        candlestickData = new ConcurrentBag<Candlestick>();
         lastUpdateTime = DateTime.UtcNow; // Initialize to the current time
     }
 
+    // Add new candlestick data asynchronously
     public async Task AddCandlestickDataAsync(IEnumerable<Candlestick> newData)
     {
-        // Add new candlestick data
-        candlestickData.AddRange(newData);
+        foreach (var data in newData)
+        {
+            candlestickData.Add(data);
+        }
         lastUpdateTime = DateTime.UtcNow; // Update the last update time
+        Console.WriteLine("Added new candlestick data.");
     }
 
+    // Retrain the model asynchronously
     public async Task RetrainModelAsync()
     {
-        // Prepare data with trend labels
-        var labeledData = LabelCandlestickData(candlestickData);
-        var dataView = mlContext.Data.LoadFromEnumerable(labeledData);
-
-        // Define pipeline for multiclass classification
-        var pipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", nameof(LabeledCandlestick.TrendDirection))
-            .Append(mlContext.Transforms.Concatenate("Features", "Open", "High", "Low", "Close", "Volume"))
-            .Append(mlContext.MulticlassClassification.Trainers.LightGbm())
-            .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
-
-        model = pipeline.Fit(dataView);
-
-        // Save the updated model if needed
-        mlContext.Model.Save(model, dataView.Schema, "updatedModel.zip");
-    }
-
-    public async Task CheckAndUpdateModelAsync(IEnumerable<Candlestick> historicalData)
-    {
-        // Check if 24 hours have passed since the last update
-        if (DateTime.UtcNow - lastUpdateTime >= TimeSpan.FromHours(24))
+        try
         {
-            // Call the method to add historical data
-            await AddCandlestickDataAsync(historicalData);
-            await RetrainModelAsync();
+            // Prepare data with trend labels
+            var labeledData = LabelCandlestickData(candlestickData.ToList()); // Convert to list for processing
+            var dataView = mlContext.Data.LoadFromEnumerable(labeledData);
+
+            // Define pipeline for multiclass classification
+            var pipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", nameof(LabeledCandlestick.TrendDirection))
+                .Append(mlContext.Transforms.Concatenate("Features", "Open", "High", "Low", "Close", "Volume"))
+                .Append(mlContext.MulticlassClassification.Trainers.LightGbm())
+                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+
+            model = pipeline.Fit(dataView);
+
+            // Save the updated model
+            mlContext.Model.Save(model, dataView.Schema, "updatedModel.zip");
+            Console.WriteLine("Model retrained and saved.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while retraining the model: {ex.Message}");
         }
     }
 
-    public string PredictTrend(Candlestick inputData)
+    // Check and update the model based on time criteria
+    public async Task CheckAndUpdateModelAsync(IEnumerable<Candlestick> historicalData)
     {
-        var predictionEngine = mlContext.Model.CreatePredictionEngine<Candlestick, CandlestickPrediction>(model);
-        var prediction = predictionEngine.Predict(inputData);
-        return prediction.TrendDirection;
+        try
+        {
+            // Check if 24 hours have passed since the last update
+            if (DateTime.UtcNow - lastUpdateTime >= TimeSpan.FromHours(24))
+            {
+                Console.WriteLine("Updating model with new historical data...");
+                await AddCandlestickDataAsync(historicalData);
+                await RetrainModelAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while checking and updating the model: {ex.Message}");
+        }
     }
 
+    // Predict trend direction based on new input data
+    public string PredictTrend(Candlestick inputData)
+    {
+        if (model == null)
+        {
+            throw new InvalidOperationException("Model has not been trained yet.");
+        }
+
+        try
+        {
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<Candlestick, CandlestickPrediction>(model);
+            var prediction = predictionEngine.Predict(inputData);
+            return prediction.TrendDirection;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred during prediction: {ex.Message}");
+            return null;
+        }
+    }
+
+    // Label candlestick data for model training
     private List<LabeledCandlestick> LabelCandlestickData(List<Candlestick> data)
     {
         if (data.Count < 2) return new List<LabeledCandlestick>();
@@ -110,7 +142,7 @@ public class CandlestickModelManager
     }
 }
 
-
+// Extend Candlestick with trend information
 public class LabeledCandlestick : Candlestick
 {
     public string TrendDirection { get; set; }

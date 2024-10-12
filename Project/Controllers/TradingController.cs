@@ -358,17 +358,32 @@ public class MovingAverageAnalyzer
 
     private static void CalculateAngle(List<(long Timestamp, decimal Value)> maData, List<(long Timestamp, decimal?)> angleList)
     {
+        //for (int i = 1; i < maData.Count; i++)
+        //{
+        //    var x1 = i - 1;
+        //    var y1 = maData[i - 1].Value;
+        //    var x2 = i;
+        //    var y2 = maData[i].Value;
+
+        //    var slope = (y2 - y1) / (x2 - x1);
+        //    var angle = (decimal)(Math.Atan((double)slope) * (180 / Math.PI));
+
+        //    angleList.Add((maData[i].Timestamp, angle));
+        //}
         for (int i = 1; i < maData.Count; i++)
         {
-            var x1 = i - 1;
-            var y1 = maData[i - 1].Value;
-            var x2 = i;
-            var y2 = maData[i].Value;
+            var time1 = maData[i - 1].Timestamp;
+            var value1 = maData[i - 1].Value;
+            var time2 = maData[i].Timestamp;
+            var value2 = maData[i].Value;
 
-            var slope = (y2 - y1) / (x2 - x1);
+            // Calculate slope considering time difference
+            var slope = (value2 - value1) / (time2 - time1);
+
+            // Convert slope to angle in degrees
             var angle = (decimal)(Math.Atan((double)slope) * (180 / Math.PI));
 
-            angleList.Add((maData[i].Timestamp, angle));
+            angleList.Add((time2, angle));
         }
     }
 
@@ -418,19 +433,50 @@ public class MovingAverageAnalyzer
             if (wasBullish && !isBullish)
             {
                 // Bearish crossover detected
-                crossovers.Add((currentItem.Timestamp, "Bearish", (currentItem.Angle1 + currentItem.Angle2) / 2));
+               // crossovers.Add((currentItem.Timestamp, "Bearish", (currentItem.Angle1 + currentItem.Angle2) / 2));
+                crossovers.Add((currentItem.Timestamp, "Bearish", (currentItem.Angle1 - currentItem.Angle2) / 2));
             }
             else if (!wasBullish && isBullish)
             {
                 // Bullish crossover detected
-                crossovers.Add((currentItem.Timestamp, "Bullish", (currentItem.Angle1 + currentItem.Angle2) / 2));
+                crossovers.Add((currentItem.Timestamp, "Bullish", (currentItem.Angle1 - currentItem.Angle2) / 2));
             }
         }
 
         return crossovers;
     }
 
+    public static bool  IsValidPullback(List<Candlestick> candles, (long Timestamp, string Type, decimal Angle) crossover)
+    {
+        var candl = candles.Where(d=>d.Time == crossover.Timestamp).FirstOrDefault();
+         decimal PullbackThreshold = 0.01m;
+        if (candles == null) return false;
 
+        decimal pullbackPrice = candl.Close * (1 - PullbackThreshold);
+        bool pullbackDetected = false;
+        var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(crossover.Timestamp).UtcDateTime;
+        var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
+        foreach (var candle in candles)
+        {
+            if (candle.Close <= pullbackPrice && candle.Close >= (candl.Close * (1 + PullbackThreshold)))
+            {
+                pullbackDetected = true;
+
+                // Check for resumption
+                if (crossover.Type == "Bullish" && candle.Close > candl.Close)
+                {
+                    return true; // Valid bullish crossover
+                }
+                else if (crossover.Type == "Bearish" && candle.Close < candl.Close)
+                {
+                    return true; // Valid bearish crossover
+                }
+            }
+        }
+
+        return false; // Not a valid pullback
+    }
 
 
     public class Trade

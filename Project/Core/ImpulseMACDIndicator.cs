@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+
 public class ImpulseMACDIndicator
 {
     public class ImpulseMacdResult
@@ -39,7 +40,7 @@ public class ImpulseMACDIndicator
             // Determine Signal (Buy, Sell, Hold)
             string signal = DetermineSignal(macd, signalLine);
 
-            // Add debugging output
+            // Debugging output
             Console.WriteLine($"Time: {candles[i].Time}, MACD: {macd}, SignalLine: {signalLine}, Histogram: {histogram}, EMA: {ema}, Signal: {signal}");
 
             results.Add(new ImpulseMacdResult
