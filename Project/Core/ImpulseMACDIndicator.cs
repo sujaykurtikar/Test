@@ -21,7 +21,7 @@ public class ImpulseMACDIndicator
 
         if (candles.Count < slowPeriod)
         {
-            Console.WriteLine("Not enough data to calculate MACD.");
+          //  Console.WriteLine("Not enough data to calculate MACD.");
             return results;
         }
 
@@ -41,7 +41,7 @@ public class ImpulseMACDIndicator
             string signal = DetermineSignal(macd, signalLine);
 
             // Debugging output
-            Console.WriteLine($"Time: {candles[i].Time}, MACD: {macd}, SignalLine: {signalLine}, Histogram: {histogram}, EMA: {ema}, Signal: {signal}");
+           // Console.WriteLine($"Time: {candles[i].Time}, MACD: {macd}, SignalLine: {signalLine}, Histogram: {histogram}, EMA: {ema}, Signal: {signal}");
 
             results.Add(new ImpulseMacdResult
             {
@@ -93,7 +93,7 @@ public class ImpulseMACDIndicator
         if (latestResult == null)
             return "No data available";
 
-        Console.WriteLine($"Latest Signal on {latestResult.Time}: {latestResult.Signal}");
+        //Console.WriteLine($"Latest Signal on {latestResult.Time}: {latestResult.Signal}");
         return latestResult.Signal;
     }
 }
