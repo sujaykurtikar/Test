@@ -123,8 +123,8 @@ public class DeltaAPI
 
                 var stop_loss_limit_price = limitPrice - 70; // Replace "string" with a value
                 var stop_loss_price = limitPrice - 40; // Replace "string" with a value
-                var take_profit_limit_price = limitPrice + 150; // Replace "string" with a value
-                var take_profit_price = limitPrice + 100; // Replace "string" with a value
+                var take_profit_limit_price = limitPrice + 250; // Replace "string" with a value
+                var take_profit_price = limitPrice + 200; // Replace "string" with a value
 
                 if (sides == "sell")
                 {
@@ -135,8 +135,8 @@ public class DeltaAPI
 
                     stop_loss_limit_price = limitPrice + 70; // Replace "string" with a value
                     stop_loss_price = limitPrice + 40; // Replace "string" with a value
-                    take_profit_limit_price = limitPrice - 150; // Replace "string" with a value
-                    take_profit_price = limitPrice - 100; // Replace "string" with a value
+                    take_profit_limit_price = limitPrice - 250; // Replace "string" with a value
+                    take_profit_price = limitPrice - 200; // Replace "string" with a value
 
                 }
 
