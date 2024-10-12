@@ -35,6 +35,7 @@ public class PeriodicTaskService : BackgroundService
     string logTime;
     string ImpulseMACDIndicator;
     string trendML;
+    string VolumeDryUp;
     private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
 
@@ -126,14 +127,14 @@ public class PeriodicTaskService : BackgroundService
         //List<decimal> volumeMovingAverages = calculator.CalculateVolumeMovingAverage(historicalData, period);
 
 
-        ImpulseMACDIndicator indicator1 = new ImpulseMACDIndicator();
-        string latestSignaltest = indicator1.GetLatestImpulseMACDSignal(historicalData);
-        if (latestSignaltest != null && ImpulseMACDIndicator != latestSignaltest) 
-        {
-            ImpulseMACDIndicator = latestSignaltest;
-            DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
-            Log.Information($"The latest signal is: {latestSignaltest}, Current IST Time: {indianTime}");
-        }
+        //ImpulseMACDIndicator indicator1 = new ImpulseMACDIndicator();
+        //string latestSignaltest = indicator1.GetLatestImpulseMACDSignal(historicalData);
+        //if (latestSignaltest != null && ImpulseMACDIndicator != latestSignaltest) 
+        //{
+        //    ImpulseMACDIndicator = latestSignaltest;
+        //    DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
+        //    Log.Information($"The latest signal is: {latestSignaltest}, Current IST Time: {indianTime}");
+        //}
 
         //var modelManager = new CandlestickModelManager();
 
@@ -165,9 +166,10 @@ public class PeriodicTaskService : BackgroundService
 
 
         var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
-        if (tradeSignal != "No Signal")
+        if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
         {
-            var istDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, istTimeZone);
+            VolumeDryUp = tradeSignal;
+            var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
             Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
         }
 
@@ -228,15 +230,15 @@ public class PeriodicTaskService : BackgroundService
                 if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                 {
                     logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
-                       istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                       latestCrossover.Type,
-                       latestCrossover.Angle,
-                       historicalData.FirstOrDefault()?.High ?? 0,
-                       historicalData.FirstOrDefault()?.Low ?? 0,
-                       historicalData.FirstOrDefault()?.Open ?? 0,
-                       historicalData.FirstOrDefault()?.Close ?? 0,
-                         isTrade);
+                    //Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
+                    //   istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    //   latestCrossover.Type,
+                    //   latestCrossover.Angle,
+                    //   historicalData.FirstOrDefault()?.High ?? 0,
+                    //   historicalData.FirstOrDefault()?.Low ?? 0,
+                    //   historicalData.FirstOrDefault()?.Open ?? 0,
+                    //   historicalData.FirstOrDefault()?.Close ?? 0,
+                    //     isTrade);
                     //VolumeDivergence vd = new VolumeDivergence(2, 0.15m);
                     //bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
                     //bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
@@ -273,12 +275,12 @@ public class PeriodicTaskService : BackgroundService
                     //        $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
                     //        $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
                     //        $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
-                    // var crossoverCandle = historicalData.FirstOrDefault(c => c.Time == latestCrossover.Timestamp);
+                    var crossoverCandle = historicalData.FirstOrDefault(c => c.Time == latestCrossover.Timestamp);
 
-                    //  Log.Information($"Crossover at Timestamp {istDateTime}, " +
-                    //$"Type: {latestCrossoverEMA.Type}, Angle: {latestCrossoverEMA.Angle}° " +
-                    //$"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
-                    //$"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}");
+                    Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
+                  $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
+                  $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
+                  $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}");
 
                     // var latestCrossover = new { Type = latestCrossoverEMA.Type };
 
