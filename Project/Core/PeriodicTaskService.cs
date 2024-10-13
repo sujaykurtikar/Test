@@ -304,10 +304,11 @@ public class PeriodicTaskService : BackgroundService
 
         // Fetch the ticker information and place the order
         var (markPrice, productId) = await GetTickerAndProduct(symbol, deltaApi);
-        var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
-
+        await PlaceOrder(productId, qty, markPrice, orderType, deltaApi);
+       // var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
+        Log.Information($"Order placed: completed");
         // Check the order status and handle it accordingly
-       // await ManageOrder(orderResponse, productId, deltaApi);
+        // await ManageOrder(orderResponse, productId, deltaApi);
     }
     // Private method to get ticker and product information
     private static async Task<(decimal, int)> GetTickerAndProduct(string symbol, DeltaAPI deltaApi)
@@ -324,7 +325,7 @@ public class PeriodicTaskService : BackgroundService
     private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi)
     {
         JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice);
-        Log.Information($"Order placed: {orderResponse}");
+        //Log.Information($"Order placed: {orderResponse}");
         return orderResponse;
     }
 

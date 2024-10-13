@@ -200,8 +200,9 @@ public class DeltaAPI
                         ////
                         //}
                         // Log.Information("Order Response: {@OrderResponse}", orderResponse);
-                        Log.Information("Order Response: {@OrderResponse}", orderResponse);
-                        return orderResponse;
+                        Log.Information("Order Response: {@OrderResponse}", responseBody);
+                        return null;
+                       // return orderResponse;
                     }
                     else
                     {
