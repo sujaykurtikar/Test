@@ -166,7 +166,7 @@ public class PeriodicTaskService : BackgroundService
                     //        $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
                     //        $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
                     //        $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
-                    var crossoverCandle = historicalData.FirstOrDefault(c => c.Time == latestCrossover.Timestamp);
+                    var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
 
                     Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
                   $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
