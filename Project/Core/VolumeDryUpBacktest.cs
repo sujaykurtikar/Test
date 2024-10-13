@@ -37,7 +37,7 @@ public class VolumeDryUpBacktest
                 positionSize = currentCapital / entryPrice;  // Buy as much as capital allows
                 inPosition = true;
                 totalTrades++;
-                Console.WriteLine($"Buy Signal: Enter trade at {entryPrice} on {candles[i].Time}");
+             //   Console.WriteLine($"Buy Signal: Enter trade at {entryPrice} on {candles[i].Time}");
             }
             else if (tradeSignal == "Sell" && inPosition)
             {
@@ -63,7 +63,7 @@ public class VolumeDryUpBacktest
                 maxCapital = Math.Max(maxCapital, currentCapital);
                 drawdown = Math.Max(drawdown, maxCapital - currentCapital);
 
-                Console.WriteLine($"Sell Signal: Exit trade at {exitPrice} on {candles[i].Time}. Profit: {profit}");
+               // Console.WriteLine($"Sell Signal: Exit trade at {exitPrice} on {candles[i].Time}. Profit: {profit}");
             }
         }
 

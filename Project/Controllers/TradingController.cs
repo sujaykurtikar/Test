@@ -5,6 +5,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using static Test_Project.Controllers.ControlController;
+using Serilog;
 
 [ApiController]
 [Route("[controller]")]
@@ -248,16 +249,16 @@ public class HistoricalDataFetcher
                     }
                     else
                     {
-                        Console.WriteLine($"Failed to retrieve data. Status code: {response.StatusCode}");
+                        Log.Information($"Failed to retrieve data. Status code: {response.StatusCode}");
                         var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"Error content: {errorContent}");
+                        Log.Information($"Error content: {errorContent}");
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Log.Information($"An error occurred: {ex.Message}");
                 return null;
             }
         }

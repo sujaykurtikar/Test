@@ -16,19 +16,19 @@ using Timer = System.Threading.Timer;
 
 public class PeriodicTaskService : BackgroundService
 {
-    private readonly ILogger<PeriodicTaskService> _logger;
+    //private readonly ILogger<PeriodicTaskService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
     //private bool _isRunning = true;
     //private CancellationTokenSource _cts;
-    private readonly ITaskStateService _taskStateService;
+   // private readonly ITaskStateService _taskStateService;
     private readonly IConfiguration _appSettings;
     private Timer _timer;
 
-    public PeriodicTaskService(ILogger<PeriodicTaskService> logger, IServiceScopeFactory serviceScopeFactory, ITaskStateService taskStateService, IConfiguration configuration)
+    public PeriodicTaskService(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
     {
-        _logger = logger;
+       // _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
-        _taskStateService = taskStateService;
+       // _taskStateService = taskStateService;
         _appSettings = configuration;
     }
 
@@ -316,7 +316,7 @@ public class PeriodicTaskService : BackgroundService
 
         decimal markPrice = ticker["mark_price"].Value<decimal>();
         int productId = ticker["product_id"].Value<int>();
-        Console.WriteLine($"Mark Price: {markPrice}, Product ID: {productId}");
+        Log.Information($"Mark Price: {markPrice}, Product ID: {productId}");
         return (markPrice, productId);
     }
 
@@ -324,7 +324,7 @@ public class PeriodicTaskService : BackgroundService
     private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi)
     {
         JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice);
-        Console.WriteLine($"Order placed: {orderResponse}");
+        Log.Information($"Order placed: {orderResponse}");
         return orderResponse;
     }
 

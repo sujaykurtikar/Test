@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
 using Serilog;
+using System.Runtime.InteropServices;
 
 public class DeltaAPI
 {
@@ -52,16 +53,16 @@ public class DeltaAPI
 
                 // Extract and convert values
                 
-                Console.WriteLine(tickerInfo.ToString());
+               // Console.WriteLine(tickerInfo.ToString());
                 return (JObject)tickerInfo;
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                Log.Information($"Request error: {e.Message}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"General error: {e.Message}");
+                Log.Information($"General error: {e.Message}");
             }
         }
         return null;
@@ -214,16 +215,16 @@ public class DeltaAPI
                 }
                 catch (HttpRequestException e)
                 {
-                    Console.WriteLine($"Request error: {e.Message}");
+                    Log.Information($"Request error: {e.Message}");
                 }
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                Log.Information($"Request error: {e.Message}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"General error: {e.Message}");
+                Log.Information($"General error: {e.Message}");
             }
         }
         return null;
@@ -284,7 +285,7 @@ public class DeltaAPI
                     }
                     else
                     {
-                        Console.WriteLine($"Response error: {await response.Content.ReadAsStringAsync()}");
+                        Log.Information($"Response error: {await response.Content.ReadAsStringAsync()}");
                     }
                     response.EnsureSuccessStatusCode();
 
@@ -293,16 +294,16 @@ public class DeltaAPI
                 }
                 catch (HttpRequestException e)
                 {
-                    Console.WriteLine($"Request error: {e.Message}");
+                    Log.Information($"Request error: {e.Message}");
                 }
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                Log.Information($"Request error: {e.Message}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"General error: {e.Message}");
+                Log.Information($"General error: {e.Message}");
             }
         }
         return null;
