@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Serilog;
+using System.Reflection.Metadata;
 using Timer = System.Threading.Timer;
 
 public class PeriodicTaskService : BackgroundService
@@ -166,20 +167,30 @@ public class PeriodicTaskService : BackgroundService
                     //        $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
                     //        $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
                     //        $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
+
+                    var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
+                    string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
+
+                    //foreach (var (Time, ADX) in adxValues)
+                    //{
+                    //    var utcDateTime1 = DateTimeOffset.FromUnixTimeSeconds(Time).UtcDateTime;
+                    //    var istDateTime1 = TimeZoneInfo.ConvertTime(utcDateTime1, istTimeZone);
+                    //    Console.WriteLine($"Timestamp: {istDateTime1}, ADX: {ADX}");
+                    //}
+
                     var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
 
                     Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
                   $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
                   $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
-                  $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}");
-
-                    // var latestCrossover = new { Type = latestCrossoverEMA.Type };
-
-                    if (latestCrossover.Type == "Bullish")
+                  $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
+                
+                   
+                    if (latestCrossover.Type == "Bullish" && (adxTrend == "INC" || adxTrend == "REV"))
                     {
                         isBullishDivergence = true;
                     }
-                    else if (latestCrossover.Type == "Bearish")
+                    else if (latestCrossover.Type == "Bearish" && (adxTrend == "INC" || adxTrend == "REV"))
                     {
                         isBearishDivergence = true;
                     }
@@ -198,7 +209,7 @@ public class PeriodicTaskService : BackgroundService
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}",DateTime.UtcNow, utcDateTime,Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value+5) && (!(isBullishDivergence && isBearishDivergence)))
+                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value+5) && (isBullishDivergence || isBearishDivergence))
                     {
                         //_logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
                         Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));

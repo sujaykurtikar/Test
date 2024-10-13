@@ -121,7 +121,7 @@ public class DeltaAPI
                 //    order_type = "market_order",
                 //    side = "buy"
                 //};
-
+                var trailAmount = 40;
                 var stop_loss_limit_price = limitPrice - 70; // Replace "string" with a value
                 var stop_loss_price = limitPrice - 40; // Replace "string" with a value
                 var take_profit_limit_price = limitPrice + 250; // Replace "string" with a value
@@ -138,7 +138,7 @@ public class DeltaAPI
                     stop_loss_price = limitPrice + 40; // Replace "string" with a value
                     take_profit_limit_price = limitPrice - 250; // Replace "string" with a value
                     take_profit_price = limitPrice - 200; // Replace "string" with a value
-
+                    trailAmount = -40;
                 }
 
                 var orderData = new
@@ -148,10 +148,10 @@ public class DeltaAPI
                     side = sides,
                     limit_price = limitPrice,
                     order_type = "limit_order",//"market_order",// "limit_order",
-                    //stop_order_type = "stop_loss_order",
-                    //stop_price = limitPrice, // Replace "string" with a dynamic value or keep it as a string if necessary
-                    trail_amount = "50", // Replace "string" with a dynamic value or keep it as a string if necessary
-                    stop_trigger_method = "mark_price",
+                    stop_order_type = "stop_loss_order",
+                    stop_price = stop_loss_price, // Replace "string" with a dynamic value or keep it as a string if necessary
+                    trail_amount = trailAmount, // Replace "string" with a dynamic value or keep it as a string if necessary
+                    stop_trigger_method = "last_traded_price",//"mark_price",
                     bracket_stop_loss_limit_price = stop_loss_limit_price, // Replace "string" with a value
                     bracket_stop_loss_price = stop_loss_price, // Replace "string" with a value
                     bracket_take_profit_limit_price = take_profit_limit_price, // Replace "string" with a value
