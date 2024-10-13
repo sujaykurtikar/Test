@@ -11,6 +11,8 @@ using Newtonsoft.Json.Linq;
 using static System.Collections.Specialized.BitVector32;
 using Serilog;
 using static HaramiTradingStrategy;
+using System.Timers;
+using Timer = System.Threading.Timer;
 
 public class PeriodicTaskService : BackgroundService
 {
@@ -20,6 +22,7 @@ public class PeriodicTaskService : BackgroundService
     //private CancellationTokenSource _cts;
     private readonly ITaskStateService _taskStateService;
     private readonly IConfiguration _appSettings;
+    private Timer _timer;
 
     public PeriodicTaskService(ILogger<PeriodicTaskService> logger, IServiceScopeFactory serviceScopeFactory, ITaskStateService taskStateService, IConfiguration configuration)
     {
@@ -29,14 +32,13 @@ public class PeriodicTaskService : BackgroundService
         _appSettings = configuration;
     }
 
-    private TimeSpan _interval = TimeSpan.FromMinutes(5);
-    private bool _isRunning = false;
-    private readonly object _lock = new object();
+    private TimeSpan _interval = TimeSpan.FromMinutes(0);
     string logTime;
     string ImpulseMACDIndicator;
-    string trendML;
+    //string trendML;
     string VolumeDryUp;
-    private long count = 0;
+    string superTrend;
+    //private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,10 +49,12 @@ public class PeriodicTaskService : BackgroundService
         {
             //if (_taskStateService.IsRunning)
             //{
-           // Console.WriteLine("PeriodicTaskService is Running.");
+            // Console.WriteLine("PeriodicTaskService is Running.");
+            // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
+           // await Task.Delay(_interval);
             await FetchAndProcessData();
             // Your periodic task logic here
-            //  await Task.Delay(_interval);
+             // await Task.Delay(_interval);
             //}
             //else
             //{
@@ -69,7 +73,7 @@ public class PeriodicTaskService : BackgroundService
 
         var resolution = _appSettings.GetValue<string>("Resolution");
         int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
-        var startDate = DateTime.UtcNow.AddMinutes(-(2000* value)); // max 2000
+        var startDate = DateTime.UtcNow.AddMinutes(-(100* value)); // max 2000 candels 
         //var startDate = DateTime.UtcNow.AddMinutes(-10000);
         var endDate = DateTime.UtcNow;
         var historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
@@ -78,7 +82,7 @@ public class PeriodicTaskService : BackgroundService
         var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime ?? 0).UtcDateTime;
         var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
-        _interval = -(DateTime.Now - TimeSpan.FromMinutes(6.40) - TimeZoneInfo.ConvertTime(lastcandel, istTimeZone));
+        _interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
 
         historicalData.Reverse();
 
@@ -89,81 +93,14 @@ public class PeriodicTaskService : BackgroundService
         var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
         var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
-
-        // Generate the trade signal
-        //string tradeSignal1 = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, lookbackPeriod, dryUpThreshold, breakoutThreshold);
-        //Console.WriteLine($"Trade Signal: {tradeSignal1}");
-
-        //// Step 3: Calculate trade parameters if there's a signal
-        //if (tradeSignal1 != "No Signal")
-        //{
-        //    var (profitTarget, stopLoss) = VolumeDryUpStrategy.CalculateTradeParameters(historicalData, tradeSignal1);
-        //    Console.WriteLine($"Profit Target: {profitTarget}, Stop Loss: {stopLoss}");
-        //}
-        //Console.WriteLine($"Is Valid Pullback: {isValidPullback}");
-        //// Load your historical candlestick data
-        //var result1 = VolumeDryUpBacktest.RunBacktest(historicalData);
-
-        //Console.WriteLine($"Total Trades: {result1.TotalTrades}");
-        //Console.WriteLine($"Winning Trades: {result1.WinningTrades}");
-        //Console.WriteLine($"Losing Trades: {result1.LosingTrades}");
-        //Console.WriteLine($"Total Profit: {result1.TotalProfit}");
-        //Console.WriteLine($"Max Drawdown: {result1.MaxDrawdown}");
-
-
-        //int emaPeriod1 = 5; // You can change these values as per your requirement
-        //int emaPeriod2 = 10;
-
-        //var emaPeriod1 = _appSettings.GetValue<int>("Period:Period1");
-        //var emaPeriod2 = _appSettings.GetValue<int>("Period:Period2");
-
-        //var latestCrossoverEMA= EmaAnalyzer.CalculateEmas(historicalData, emaPeriod1, emaPeriod2);
-        //var emas = EmaAnalyzer.CalculateEmas(historicalData, emaPeriod1, emaPeriod2);
-        //var angles1 = EmaAnalyzer.CalculateEmaAngles(emas);
-        //var latestCrossoverEMA = EmaAnalyzer.IdentifyEmaCrossoversAndAngles(emas, angles1).LastOrDefault();
-
-        //int period = 3;
-        //VolumeMovingAverageCalculator calculator = new VolumeMovingAverageCalculator();
-        //List<decimal> volumeMovingAverages = calculator.CalculateVolumeMovingAverage(historicalData, period);
-
-
-        //ImpulseMACDIndicator indicator1 = new ImpulseMACDIndicator();
-        //string latestSignaltest = indicator1.GetLatestImpulseMACDSignal(historicalData);
-        //if (latestSignaltest != null && ImpulseMACDIndicator != latestSignaltest) 
-        //{
-        //    ImpulseMACDIndicator = latestSignaltest;
-        //    DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
-        //    Log.Information($"The latest signal is: {latestSignaltest}, Current IST Time: {indianTime}");
-        //}
-
-        //var modelManager = new CandlestickModelManager();
-
-
-        //await modelManager.AddCandlestickDataAsync(historicalData);
-
-        //// Simulate checking and updating the model
-        //await modelManager.CheckAndUpdateModelAsync(historicalData);
-
-        // Predict trend
-        //var prediction = modelManager.PredictTrend(new Candlestick { Time = DateTime.UtcNow.AddMinutes(2).Ticks, Open = 104, High = 107, Low = 101, Close = 105, Volume = 1200 });
-        //Console.WriteLine($"Predicted trend: {prediction}");
-
-        //var candlestickModelManager = new CandlestickModelManager();
-
-       
-        //    candlestickModelManager.CheckAndUpdateModelAsync(historicalData);
-        //    nextUpdateTime = DateTime.Now.AddHours(24); // Set the next update time to 24 hours from now
-        
-        //string predictedTrend = candlestickModelManager.PredictTrend(historicalData.LastOrDefault());
-        //if (predictedTrend != null && trendML != predictedTrend)
-        //{
-        //    trendML = predictedTrend;
-        //    DateTime indianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "India Standard Time");
-        //    Log.Information($"Predicted trend direction: {predictedTrend}, Current IST Time: {indianTime}");
-        //}
-        // Call the prediction method
-
-
+        var supertrend = new SupertrendIndicator(10, 3.0m);
+        var supertrendSignals = supertrend.CalculateSupertrend(historicalData).LastOrDefault();
+        if (supertrendSignals.Signal != superTrend)
+        {
+            superTrend = supertrendSignals.Signal;
+            var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            Log.Information($"Trade Signal VolumeDryUpStrategy: {superTrend} -current time {istDateTime}");
+        }
 
         var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
         if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
@@ -172,40 +109,6 @@ public class PeriodicTaskService : BackgroundService
             var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
             Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
         }
-
-
-        //var result = EmaAnalyzer.IdentifyLatestCrossover(candles, shortTermEmaPeriod, longTermEmaPeriod);
-        //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}");
-        //Console.WriteLine($"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}");
-        //Console.WriteLine($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
-        //          $"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}, " +
-        //          $"Crossover occurred on candle: Time={result.latestCrossoverCandle.Time}, Open={result.latestCrossoverCandle.Open}, " +
-        //          $"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume}");
-
-        // if (result.IsCrossover)
-        // {
-        //     Log.Information(
-        //$"Crossover: {result.IsCrossover}, " +
-        //$"Type: {result.CrossoverType}, " +
-        //$"EMA1 Angle: {result.Ema1Angle}, " +
-        //$"EMA2 Angle: {result.Ema2Angle}, " +
-        //$"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
-        //$"Crossover Candle Close: {result.CrossoverCandleClose}, " +
-        //$"Crossover Candle High: {result.CrossoverCandleHigh}, " +
-        //$"Crossover Candle Low: {result.CrossoverCandleLow}");
-
-        //List<decimal> emaShort = new List<decimal> { 7 };
-        //    List<decimal> emaLong = new List<decimal> { 21 };
-
-        //    // Call the FindCrossoverPoint method
-        //    decimal? crossoverPrice = EmaAnalyzer.FindCrossoverPoint(historicalData, emaShort, emaLong);
-
-        //    // Output the crossover price if found
-        //    if (crossoverPrice.HasValue)
-        //    {
-        //        Log.Information($"Crossover happened at price: {crossoverPrice.Value}");
-        //    }
-        // }
 
         List<string> timestamp = new List<string>();
         if (latestCrossover != default)
@@ -253,12 +156,12 @@ public class PeriodicTaskService : BackgroundService
                     //bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
 
 
-                    ImpulseMACDIndicator indicator = new ImpulseMACDIndicator();
-                    string latestSignal = indicator.GetLatestImpulseMACDSignal(historicalData);
+                    //ImpulseMACDIndicator indicator = new ImpulseMACDIndicator();
+                    //string latestSignal = indicator.GetLatestImpulseMACDSignal(historicalData);
 
-                    //bool isBearishDivergence = latestSignal == "Sell" ? true : false;
-                    //bool isBullishDivergence = latestSignal == "Buy" ? true : false;
-                    Log.Information($"The latest signal is MACDSignal: {latestSignal}");
+                    ////bool isBearishDivergence = latestSignal == "Sell" ? true : false;
+                    ////bool isBullishDivergence = latestSignal == "Buy" ? true : false;
+                    //Log.Information($"The latest signal is MACDSignal: {latestSignal}");
 
                     bool isBearishDivergence = false;
                     bool isBullishDivergence = false ;
@@ -307,7 +210,7 @@ public class PeriodicTaskService : BackgroundService
 
                     // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
                     Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}",DateTime.UtcNow, utcDateTime,Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value+2) && (!(isBullishDivergence && isBearishDivergence)))
+                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value+5) && (!(isBullishDivergence && isBearishDivergence)))
                     {
                         //_logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
                         Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
@@ -387,7 +290,8 @@ public class PeriodicTaskService : BackgroundService
                 //}
             }
         }
-
+        scope.Dispose();
+        historicalData = null;
     }
     public async Task TradeAsync(string orderType)
     {

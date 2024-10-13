@@ -43,7 +43,7 @@
         bool isDryingUp = IsVolumeDryingUp(candles, lookbackPeriod, dryUpThreshold);
         if (isDryingUp)
         {
-            Console.WriteLine("Volume is drying up, waiting for a breakout...");
+           // Console.WriteLine("Volume is drying up, waiting for a breakout...");
         }
 
         bool isBreakout = IsBreakoutWithVolume(candles, lookbackPeriod, breakoutThreshold);
