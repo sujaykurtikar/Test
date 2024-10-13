@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using static Test_Project.Controllers.ControlController;
-using System.Reflection.Metadata;
-using Newtonsoft.Json.Linq;
-using static System.Collections.Specialized.BitVector32;
+﻿using Newtonsoft.Json.Linq;
 using Serilog;
-using static HaramiTradingStrategy;
-using System.Timers;
 using Timer = System.Threading.Timer;
 
 public class PeriodicTaskService : BackgroundService
@@ -99,7 +87,7 @@ public class PeriodicTaskService : BackgroundService
         {
             superTrend = supertrendSignals.Signal;
             var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
-            Log.Information($"Trade Signal VolumeDryUpStrategy: {superTrend} -current time {istDateTime}");
+            Log.Information($"Trade Signal Supertrend: {superTrend} -current time {istDateTime}");
         }
 
         var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
@@ -230,6 +218,7 @@ public class PeriodicTaskService : BackgroundService
                                     {
                                         await TradeAsync("buy");
                                     });
+                                    await Task.Delay(value);
                                 }
                                 catch (Exception ex)
                                 {
@@ -252,6 +241,7 @@ public class PeriodicTaskService : BackgroundService
                                     {
                                         await TradeAsync("sell");
                                     });
+                                    await Task.Delay(value);
                                 }
                                 catch (Exception ex)
                                 {

@@ -54,18 +54,6 @@
               "target": "Package",
               "version": "[17.11.4, )"
             },
-            "Microsoft.ML": {
-              "target": "Package",
-              "version": "[3.0.1, )"
-            },
-            "Microsoft.ML.FastTree": {
-              "target": "Package",
-              "version": "[3.0.1, )"
-            },
-            "Microsoft.ML.LightGBM": {
-              "target": "Package",
-              "version": "[3.0.1, )"
-            },
             "NLog": {
               "target": "Package",
               "version": "[5.3.4, )"
