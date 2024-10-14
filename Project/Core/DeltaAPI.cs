@@ -149,7 +149,7 @@ public class DeltaAPI
                     limit_price = limitPrice,
                     order_type = "limit_order",//"market_order",// "limit_order",
                     stop_order_type = "stop_loss_order",
-                    stop_price = stop_loss_price, // Replace "string" with a dynamic value or keep it as a string if necessary
+                    //stop_price = stop_loss_price, // Replace "string" with a dynamic value or keep it as a string if necessary
                     trail_amount = trailAmount, // Replace "string" with a dynamic value or keep it as a string if necessary
                     stop_trigger_method = "last_traded_price",//"mark_price",
                     bracket_stop_loss_limit_price = stop_loss_limit_price, // Replace "string" with a value
