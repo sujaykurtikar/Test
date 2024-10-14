@@ -27,30 +27,50 @@ public class PeriodicTaskService : BackgroundService
     //string trendML;
     string VolumeDryUp;
     string superTrend;
+    long? latestCandel;
     //private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
        // Console.WriteLine("PeriodicTaskService is started.");
-
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            //if (_taskStateService.IsRunning)
-            //{
-            // Console.WriteLine("PeriodicTaskService is Running.");
-            // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
-           // await Task.Delay(_interval);
-            await FetchAndProcessData();
-            // Your periodic task logic here
-             // await Task.Delay(_interval);
-            //}
-            //else
-            //{
-            //    Console.WriteLine("PeriodicTaskService is stopped");
-            //    //  await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // Delay to check _isRunning status again
-            //    break;
-            //}
+            var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            Log.Information($"Background task started {dateTime}");
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                //if (_taskStateService.IsRunning)
+                //{
+                // Console.WriteLine("PeriodicTaskService is Running.");
+                // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
+                // await Task.Delay(_interval);
+                await FetchAndProcessData();
+                // Your periodic task logic here
+                // await Task.Delay(_interval);
+                //}
+                //else
+                //{
+                //    Console.WriteLine("PeriodicTaskService is stopped");
+                //    //  await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // Delay to check _isRunning status again
+                //    break;
+                //}
+            }
+
+        }
+        catch (Exception ex)
+        {
+            var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            Log.Information(ex, $"Background task encountered an error at {dateTime}");
+        }
+        finally
+        {
+            var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            Log.Information($"Background task stopped at {dateTime}");
         }
     }
 
@@ -64,16 +84,23 @@ public class PeriodicTaskService : BackgroundService
 
             var resolution = _appSettings.GetValue<string>("Resolution");
             int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
-        var startDate = DateTime.UtcNow.AddMinutes(-(100* value)); // max 2000 candels 
+            var startDate = DateTime.UtcNow.AddMinutes(-(100* value)); // max 2000 candels 
                                                                         //var startDate = DateTime.UtcNow.AddMinutes(-10000);
             var endDate = DateTime.UtcNow;
             var historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
 
-            var lastcandeltime = historicalData.FirstOrDefault()?.Time;
+            var lastCandelDetail = historicalData.FirstOrDefault();
+            var lastcandeltime = lastCandelDetail?.Time;
             var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime ?? 0).UtcDateTime;
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
             _interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
+
+            if (lastcandeltime != null || lastcandeltime > latestCandel)
+            {
+                Log.Information($"New candle fetched, Current time :{TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, New candel time: {lastcandelT}, CandelHigh:{lastCandelDetail.High} ,CandelLow: {lastCandelDetail.Low}, Candelopen:{lastCandelDetail.Open}, CandelLow:{lastCandelDetail.Close}");
+                latestCandel = lastcandeltime;
+            }
 
             historicalData.Reverse();
 
