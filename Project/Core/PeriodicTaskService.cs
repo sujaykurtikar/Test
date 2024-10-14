@@ -96,7 +96,7 @@ public class PeriodicTaskService : BackgroundService
             var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
             _interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
 
-            if (lastcandeltime != null || lastcandeltime > latestCandel)
+            if (lastcandeltime != null && lastcandeltime > latestCandel)
             {
                 Log.Information($"New candle fetched, Current time :{TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, New candel time: {lastcandelT}, CandelHigh:{lastCandelDetail.High} ,CandelLow: {lastCandelDetail.Low}, Candelopen:{lastCandelDetail.Open}, CandelLow:{lastCandelDetail.Close}");
                 latestCandel = lastcandeltime;
