@@ -12,7 +12,8 @@ public class PeriodicTaskService : BackgroundService
    // private readonly ITaskStateService _taskStateService;
     private readonly IConfiguration _appSettings;
     private Timer _timer;
-
+    private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
+    private Timer _heartbeatTimer;
     public PeriodicTaskService(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
     {
        // _logger = logger;
@@ -21,7 +22,7 @@ public class PeriodicTaskService : BackgroundService
         _appSettings = configuration;
     }
 
-    private TimeSpan _interval = TimeSpan.FromMinutes(0);
+    //private TimeSpan _interval = TimeSpan.FromMinutes(0);
     string logTime;
     string ImpulseMACDIndicator;
     //string trendML;
@@ -30,6 +31,7 @@ public class PeriodicTaskService : BackgroundService
     long? latestCandel;
     //private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
+    
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -40,23 +42,33 @@ public class PeriodicTaskService : BackgroundService
             var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
             Log.Information($"Background task started {dateTime}");
 
+            _heartbeatTimer = new Timer(HeartbeatCallback, null, TimeSpan.Zero, TimeSpan.FromMinutes(10));
             while (!stoppingToken.IsCancellationRequested)
             {
-                //if (_taskStateService.IsRunning)
-                //{
-                // Console.WriteLine("PeriodicTaskService is Running.");
-                // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
-                // await Task.Delay(_interval);
-                await FetchAndProcessData();
-                // Your periodic task logic here
-                // await Task.Delay(_interval);
-                //}
-                //else
-                //{
-                //    Console.WriteLine("PeriodicTaskService is stopped");
-                //    //  await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // Delay to check _isRunning status again
-                //    break;
-                //}
+                try
+                {
+                    //if (_taskStateService.IsRunning)
+                    //{
+                    // Console.WriteLine("PeriodicTaskService is Running.");
+                    // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
+                    // await Task.Delay(_interval);
+                    await FetchAndProcessData();
+                    // await Task.Delay(_interval, stoppingToken);
+                    // Your periodic task logic here
+                    // await Task.Delay(_interval);
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine("PeriodicTaskService is stopped");
+                    //    //  await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // Delay to check _isRunning status again
+                    //    break;
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    // Log the error without stopping the task
+                    Log.Error(ex, "Error occurred while processing data while await FetchAndProcessData()");
+                }
             }
 
         }
@@ -68,13 +80,22 @@ public class PeriodicTaskService : BackgroundService
         }
         finally
         {
+            if (stoppingToken.IsCancellationRequested)
+            {
+                _heartbeatTimer?.Dispose(); // Only dispose if stopping
+            }
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
             Log.Information($"Background task stopped at {dateTime}");
         }
     }
 
-
+    private void HeartbeatCallback(object state)
+    {
+        // This method will be called by the timer at regular intervals
+        Log.Information("Heartbeat signal sent to prevent idling.");
+        // Optionally, perform a lightweight operation here if needed
+    }
     private async Task FetchAndProcessData()
     {
         try
@@ -94,7 +115,7 @@ public class PeriodicTaskService : BackgroundService
             var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime ?? 0).UtcDateTime;
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
-            _interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
+            //_interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
 
             if (lastcandeltime != null && lastcandeltime != latestCandel)
             {
