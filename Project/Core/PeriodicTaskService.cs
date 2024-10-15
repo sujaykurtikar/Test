@@ -86,44 +86,58 @@ public class PeriodicTaskService : BackgroundService
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
             Log.Information($"Background task stopped at {dateTime}");
-            await GetTickerDataAsync();
         }
     }
 
     private async void HeartbeatCallback(object state)
     {
         // This method will be called by the timer at regular intervals
-       // Log.Information("Heartbeat signal sent to prevent idling.");
+        // Log.Information("Heartbeat signal sent to prevent idling.");
 
-        var url = "http://testtrading.somee.com/publish/Ticker/BTCUSD%20";
+        var swaggerClient = new SwaggerClient();
+        var swaggerPageContent = await swaggerClient.GetSwaggerPageAsync();
 
-        using (var client = new HttpClient())
+        if (swaggerPageContent != null)
         {
-            // Set the Accept header
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("*/*"));
+            // Display the Swagger page content (HTML)
+           // Console.WriteLine(swaggerPageContent);
 
-            try
-            {
-                // Make the GET request
-                var response = await client.GetAsync(url);
-
-                // Check if the response is successful
-                response.EnsureSuccessStatusCode();
-
-                // Read the response content
-                var content = await response.Content.ReadAsStringAsync();
-
-                // Output the response content
-                // Console.WriteLine(content);
-
-                Log.Information("Heartbeat signal sent to prevent idling.");
-            }
-            catch (HttpRequestException e)
-            {
-                // Handle exceptions
-                Log.Information($"Request error: {e.Message}");
-            }
+            Log.Information("Heartbeat signal sent to prevent idling.");
         }
+        else
+        {
+            Log.Information("Failed to retrieve Swagger page content.");
+        }
+
+        //var url = "http://testtrading.somee.com/publish/Ticker/BTCUSD%20";
+
+        //using (var client = new HttpClient())
+        //{
+        //    // Set the Accept header
+        //    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("*/*"));
+
+        //    try
+        //    {
+        //        // Make the GET request
+        //        var response = await client.GetAsync(url);
+
+        //        // Check if the response is successful
+        //        response.EnsureSuccessStatusCode();
+
+        //        // Read the response content
+        //        var content = await response.Content.ReadAsStringAsync();
+
+        //        // Output the response content
+        //        // Console.WriteLine(content);
+
+        //        Log.Information("Heartbeat signal sent to prevent idling.");
+        //    }
+        //    catch (HttpRequestException e)
+        //    {
+        //        // Handle exceptions
+        //        Log.Information($"Request error: {e.Message}");
+        //    }
+        //}
         // Optionally, perform a lightweight operation here if needed
     }
     private async Task FetchAndProcessData()
@@ -440,37 +454,6 @@ public class PeriodicTaskService : BackgroundService
         {
             Console.WriteLine("Order filled.");
         }
-    }
-    public async static Task GetTickerDataAsync()
-    {
-        var url = "http://testtrading.somee.com/publish/Ticker/BTCUSD%20";
-
-        using (var client = new HttpClient())
-        {
-            // Set the Accept header
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("*/*"));
-
-            try
-            {
-                // Make the GET request
-                var response = await client.GetAsync(url);
-
-                // Check if the response is successful
-                response.EnsureSuccessStatusCode();
-
-                // Read the response content
-                var content = await response.Content.ReadAsStringAsync();
-
-                // Output the response content
-               // Console.WriteLine(content);
-            }
-            catch (HttpRequestException e)
-            {
-                // Handle exceptions
-                Log.Information($"Request error: {e.Message}");
-            }
-        }
-
     }
 
 }
