@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using Serilog;
 using System.Reflection.Metadata;
+using static HaramiTradingStrategy;
 using Timer = System.Threading.Timer;
 
 public class PeriodicTaskService : BackgroundService
@@ -28,6 +29,7 @@ public class PeriodicTaskService : BackgroundService
     //string trendML;
     string VolumeDryUp;
     string superTrend;
+    string bollbingerBand;
     long? latestCandel;
     //private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
@@ -165,6 +167,20 @@ public class PeriodicTaskService : BackgroundService
             {
                 Log.Information($"New candle fetched, Current time :{TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, New candel time: {lastcandelT}, CandelHigh:{lastCandelDetail.High} ,CandelLow: {lastCandelDetail.Low}, Candelopen:{lastCandelDetail.Open}, CandelLow:{lastCandelDetail.Close}");
                 latestCandel = lastcandeltime;
+
+                var calculator = new BollingerBandCalculator();
+                var candels = historicalData;
+                candels.Reverse();
+                var signals = calculator.GenerateSignals(candels);
+
+                if (signals != null && signals.LastOrDefault().Signal.ToString() != bollbingerBand)
+                {
+                    var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+                    var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
+                    bollbingerBand = signals.LastOrDefault().Signal.ToString();
+                    Log.Information($"BollingerBandCalculator: {bollbingerBand} at {dateTime}");
+                }          
+
             }
 
             historicalData.Reverse();
