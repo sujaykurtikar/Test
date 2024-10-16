@@ -183,8 +183,6 @@ public class PeriodicTaskService : BackgroundService
 
             }
 
-             historicalData.Reverse();
-
             var strategy = new PriceActionStrategy(historicalData);
             var trend = strategy.GetTrendDirection();
             var (support, resistance) = strategy.GetSupportResistance();
@@ -200,10 +198,11 @@ public class PeriodicTaskService : BackgroundService
                 var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
                 priceAction = priceActionSignal.Signal;
 
-                Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
-                     trend, support, resistance, breakout, pullback, priceActionSignal.Signal, SignaldateTime);
+                     trend, support, resistance, breakout, pullback, priceAction, SignaldateTime);
             }
+
+            historicalData.Reverse();
 
             int shortTerm = _appSettings.GetValue<int>("Period:Period1");
             int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
