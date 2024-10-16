@@ -16,6 +16,13 @@ public class BollingerBands
     public decimal LowerBand { get; set; }
 }
 
+public class Signal
+{
+    public long Time { get; set; }
+    public decimal Close { get; set; }
+    public TradeSignal SignalType { get; set; }
+}
+
 public class BollingerBandCalculator
 {
     private readonly int _period;
@@ -70,7 +77,7 @@ public class BollingerBandCalculator
         return TradeSignal.NoTrade;
     }
 
-    public List<(decimal Close, TradeSignal Signal)> GenerateSignals(List<Candlestick> candlesticks)
+    public List<Signal> GenerateSignals(List<Candlestick> candlesticks)
     {
         var bollingerBands = CalculateBollingerBands(candlesticks);
         bool isSqueeze = IsBollingerBandSqueeze(bollingerBands);
@@ -81,7 +88,12 @@ public class BollingerBandCalculator
             {
                 var currentBand = bollingerBands[Math.Min(index, bollingerBands.Count - 1)];
                 var signal = GenerateSignal(currentCandle, currentBand, isSqueeze);
-                return (Close: currentCandle.Close, Signal: signal);
+                return new Signal
+                {
+                    Time = currentCandle.Time,
+                    Close = currentCandle.Close,
+                    SignalType = signal
+                };
             })
             .ToList();
     }

@@ -171,14 +171,17 @@ public class PeriodicTaskService : BackgroundService
                 var calculator = new BollingerBandCalculator();
                 var candels = historicalData;
                 candels.Reverse();
-                var signals = calculator.GenerateSignals(candels);
+                var signals = calculator.GenerateSignals(candels).LastOrDefault();
 
-                if (signals != null && signals.LastOrDefault().Signal.ToString() != bollbingerBand)
+                if (signals != null && signals.SignalType.ToString() != bollbingerBand)
                 {
                     var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
                     var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
-                    bollbingerBand = signals.LastOrDefault().Signal.ToString();
-                    Log.Information($"BollingerBandCalculator: {bollbingerBand} at {dateTime}");
+
+                    var SignalTime = DateTimeOffset.FromUnixTimeSeconds(signals?.Time ?? 0).UtcDateTime;
+                    var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
+                    bollbingerBand = signals.SignalType.ToString();
+                    Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
                 }          
 
             }
