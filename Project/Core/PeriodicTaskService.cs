@@ -30,6 +30,7 @@ public class PeriodicTaskService : BackgroundService
     string VolumeDryUp;
     string superTrend;
     string bollbingerBand;
+    string priceAction;
     long? latestCandel;
     //private long count = 0;
     private DateTime nextUpdateTime = DateTime.Now.AddMinutes(2);
@@ -178,11 +179,31 @@ public class PeriodicTaskService : BackgroundService
                     var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
                     bollbingerBand = signals.SignalType.ToString();
                     Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
-                }          
+                }
 
             }
 
-            historicalData.Reverse();
+             historicalData.Reverse();
+
+            var strategy = new PriceActionStrategy(historicalData);
+            var trend = strategy.GetTrendDirection();
+            var (support, resistance) = strategy.GetSupportResistance();
+            var breakout = strategy.IsBreakout();
+            var pullback = strategy.IsPullback();
+            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(); ;
+            if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
+            {
+                var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+                var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
+
+                var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
+                var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
+                priceAction = priceActionSignal.Signal;
+
+                Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
+                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
+                     trend, support, resistance, breakout, pullback, priceActionSignal.Signal, SignaldateTime);
+            }
 
             int shortTerm = _appSettings.GetValue<int>("Period:Period1");
             int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
