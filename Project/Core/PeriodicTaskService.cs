@@ -49,12 +49,13 @@ public class PeriodicTaskService : BackgroundService
             {
                 try
                 {
+                    #region
                     //if (_taskStateService.IsRunning)
                     //{
                     // Console.WriteLine("PeriodicTaskService is Running.");
                     // _timer = new Timer(async _ => await FetchAndProcessData(), null, TimeSpan.Zero, _interval);
                     // await Task.Delay(_interval);
-                    await FetchAndProcessData();
+
                     // await Task.Delay(_interval, stoppingToken);
                     // Your periodic task logic here
                     // await Task.Delay(_interval);
@@ -65,10 +66,11 @@ public class PeriodicTaskService : BackgroundService
                     //    //  await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // Delay to check _isRunning status again
                     //    break;
                     //}
+                    #endregion cmnt
+                    await FetchAndProcessData();
                 }
                 catch (Exception ex)
                 {
-                    // Log the error without stopping the task
                     Log.Error(ex, "Error occurred while processing data while await FetchAndProcessData()");
                 }
             }
@@ -82,8 +84,7 @@ public class PeriodicTaskService : BackgroundService
         }
         finally
         {
-          
-             _heartbeatTimer?.Dispose(); // Only dispose if stopping
+             _heartbeatTimer?.Dispose(); 
 
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
@@ -93,17 +94,11 @@ public class PeriodicTaskService : BackgroundService
 
     private async void HeartbeatCallback(object state)
     {
-        // This method will be called by the timer at regular intervals
-        // Log.Information("Heartbeat signal sent to prevent idling.");
-
         var swaggerClient = new SwaggerClient();
         var swaggerPageContent = await swaggerClient.GetSwaggerPageAsync();
 
         if (swaggerPageContent != null)
         {
-            // Display the Swagger page content (HTML)
-           // Console.WriteLine(swaggerPageContent);
-
             Log.Information("Heartbeat signal sent to prevent idling.");
         }
         else
@@ -111,6 +106,7 @@ public class PeriodicTaskService : BackgroundService
             Log.Information("Failed to retrieve Swagger page content.");
         }
 
+        #region
         //var url = "http://testtrading.somee.com/publish/Ticker/BTCUSD%20";
 
         //using (var client = new HttpClient())
@@ -141,6 +137,7 @@ public class PeriodicTaskService : BackgroundService
         //    }
         //}
         // Optionally, perform a lightweight operation here if needed
+        #endregion cmnt trickr call
     }
     private async Task FetchAndProcessData()
     {
@@ -151,8 +148,7 @@ public class PeriodicTaskService : BackgroundService
 
             var resolution = _appSettings.GetValue<string>("Resolution");
             int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
-            var startDate = DateTime.UtcNow.AddMinutes(-(100* value)); // max 2000 candels 
-                                                                        //var startDate = DateTime.UtcNow.AddMinutes(-10000);
+            var startDate = DateTime.UtcNow.AddMinutes(-(100* value)); // max 2000 candels //var startDate = DateTime.UtcNow.AddMinutes(-10000);
             var endDate = DateTime.UtcNow;
             var historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
 
@@ -214,20 +210,13 @@ public class PeriodicTaskService : BackgroundService
 
             List<string> timestamp = new List<string>();
             if (latestCrossover != default)
-
-            //  if (latestCrossoverEMA != default)
             {
                 var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
 
-                //var istrade = true; //_taskStateService.IsTrade;
                 var istDateTimenew = DateTime.UtcNow;
-
-                //var istDateTimenew = TimeZoneInfo.ConvertTime(lastcandelT, istTimeZone);
-
 
                 if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
                 {
-                    //var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossoverEMA.Timestamp).UtcDateTime;
 
                     var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
                     var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
@@ -235,61 +224,12 @@ public class PeriodicTaskService : BackgroundService
                     if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                     {
                         logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                        //Console.WriteLine("Latest Crossover: DateTime: {0}, Type: {1}, Angle: {2}, HIGH: {3}, LOW: {4}, OPEN: {5}, CLOSE: {6}, IsTrade: {7}",
-                        //   istDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                        //   latestCrossover.Type,
-                        //   latestCrossover.Angle,
-                        //   historicalData.FirstOrDefault()?.High ?? 0,
-                        //   historicalData.FirstOrDefault()?.Low ?? 0,
-                        //   historicalData.FirstOrDefault()?.Open ?? 0,
-                        //   historicalData.FirstOrDefault()?.Close ?? 0,
-                        //     isTrade);
-                        //VolumeDivergence vd = new VolumeDivergence(2, 0.15m);
-                        //bool isBullishDivergence = vd.IsBullishVolumeDivergence(historicalData);
-                        //bool isBearishDivergence = vd.IsBearishVolumeDivergence(historicalData);
-
-                        //Console.WriteLine("Bullish Divergence: " + isBullishDivergence);
-                        //Console.WriteLine("Bearish Divergence: " + isBearishDivergence);
-
-                        //int lookBackPeriod = 2;
-                        //VolumeDivergenceDetector detector = new VolumeDivergenceDetector(lookBackPeriod);
-
-                        //bool isBearishDivergence = detector.IsBullishVolumeDivergence(historicalData);
-                        //bool isBullishDivergence = detector.IsBearishVolumeDivergence(historicalData);
-
-
-                        //ImpulseMACDIndicator indicator = new ImpulseMACDIndicator();
-                        //string latestSignal = indicator.GetLatestImpulseMACDSignal(historicalData);
-
-                        ////bool isBearishDivergence = latestSignal == "Sell" ? true : false;
-                        ////bool isBullishDivergence = latestSignal == "Buy" ? true : false;
-                        //Log.Information($"The latest signal is MACDSignal: {latestSignal}");
 
                         bool isBearishDivergence = false;
                         bool isBullishDivergence = false;
-                        // var result = latestCrossoverEMA;
-                        //Log.Information($"Latest Crossover: {result.latestCrossoverType} at index {result.latestCrossoverIndex}, " +
-                        //$"EMA1 Angle: {result.latestEma1Angle}, EMA2 Angle: {result.latestEma2Angle}, " +
-                        //$"Crossover occurred on candle: Time={istDateTime.ToString("yyyy-MM-dd HH:mm:ss")}, Open={result.latestCrossoverCandle.Open}, " +
-                        //$"High={result.latestCrossoverCandle.High}, Low={result.latestCrossoverCandle.Low}, Close={result.latestCrossoverCandle.Close}, Volume={result.latestCrossoverCandle.Volume}," +
-                        //$"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
-
-                        //Log.Information($"Latest Crossover: {result.CrossoverType} " +
-                        //        $"Crossover Price: {result.CrossoverPrice}, " +
-                        //        $"Crossover occurred on candle: Time={istDateTime:yyyy-MM-dd HH:mm:ss}, " +
-                        //        $"Open={result.CrossoverCandle.Open}, High={result.CrossoverCandle.High}, Low={result.CrossoverCandle.Low}, " +
-                        //        $"Close={result.CrossoverCandle.Close}, Volume={result.CrossoverCandle.Volume}, " +
-                        //        $"Bullish Divergence={isBullishDivergence}, Bearish Divergence={isBearishDivergence}");
 
                         var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
                         string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
-
-                        //foreach (var (Time, ADX) in adxValues)
-                        //{
-                        //    var utcDateTime1 = DateTimeOffset.FromUnixTimeSeconds(Time).UtcDateTime;
-                        //    var istDateTime1 = TimeZoneInfo.ConvertTime(utcDateTime1, istTimeZone);
-                        //    Console.WriteLine($"Timestamp: {istDateTime1}, ADX: {ADX}");
-                        //}
 
                         var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
 
@@ -307,80 +247,37 @@ public class PeriodicTaskService : BackgroundService
                         {
                             isBearishDivergence = true;
                         }
-                        //   Log.Information(
-                        //$"Crossover: {latestCrossover.IsCrossover}, " +
-                        //$"Type: {result.CrossoverType}, " +
-                        //$"EMA1 Angle: {result.Ema1Angle}, " +
-                        //$"EMA2 Angle: {result.Ema2Angle}, " +
-                        //$"Crossover Candle Open: {result.CrossoverCandleOpen}, " +
-                        //$"Crossover Candle Close: {result.CrossoverCandleClose}, " +
-                        //$"Crossover Candle High: {result.CrossoverCandleHigh}, " +
-                        //$"Crossover Candle Low: {result.CrossoverCandleLow}");
 
-                        //          Log.Information("EMA Crossover Detected: {CrossoverType} Crossover. Short EMA Angle: {ShortEMAAngle}, Long EMA Angle: {LongEMAAngle}",
-                        //result.CrossoverType ?? "No crossover", result.Ema1Angle, result.Ema2Angle);
-
-                        // if (istrade && ((DateTime.Now - istDateTime).TotalMinutes < 5) && (!(isBullishDivergence && isBearishDivergence)))
                         Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
                         if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 5) && (isBullishDivergence || isBearishDivergence))
                         {
-                            //_logger.LogInformation("istrade is true. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
                             Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-                            // if (Math.Abs(latestCrossover.Angle) >= 15)
 
+                            if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
-                                //if (latestCrossover.Type == "Bullish")
-                                if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+                                try
                                 {
-                                    // _logger.LogInformation("Bullish crossover detected with bullish divergence.");
-                                    //await TradeAsync("buy");
-                                    try
-                                    {
-                                        Log.Information("Bullish crossover detected with bullish divergence.");
-
-                                        //  await Task.Run(async () =>
-                                        // {
-                                        await TradeAsync("buy");
-                                        // });
-                                        //await Task.Delay(value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Log.Information($"Exception occurred: {ex.Message}");
-                                        // Log or handle the exception
-                                        //  Console.WriteLine($"Exception occurred: {ex.Message}");
-                                    }
-
-                                    // Add your trade logic here
+                                    await TradeAsync("buy");
                                 }
-                                else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
-                                //else if (latestCrossover.Type == "Bearish")
+                                catch (Exception ex)
                                 {
-                                    //
-                                    //await TradeAsync("sell");
-                                    try
-                                    {
-                                        Log.Information("Bearish crossover detected with Bearish divergence.");
-                                        // await Task.Run(async () =>
-                                        // {
-                                        await TradeAsync("sell");
-                                        // });
-                                        // await Task.Delay(value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Log.Information($"Exception occurred: {ex.Message}");
-                                        // Log or handle the exception
-                                        // Console.WriteLine($"Exception occurred: {ex.Message}");
-                                    }
-                                    // _logger.LogInformation("Bearish crossover detected with bearish divergence.");
-                                    // Add your trade logic here
+                                    Log.Information($"Exception occurred: {ex.Message}");
                                 }
-                                else
+                            }
+                            else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+                            {
+                                try
                                 {
-                                    //_logger.LogWarning("No valid trade detected. Crossover Type: {CrossoverType}, isBullishDivergence: {IsBullish}, isBearishDivergence: {IsBearish}", latestCrossover.Type, isBullishDivergence, isBearishDivergence);
-                                    // Console.WriteLine("NO trade");
+                                    await TradeAsync("sell");
                                 }
+                                catch (Exception ex)
+                                {
+                                    Log.Information($"Exception occurred: {ex.Message}");
+                                }
+                            }
+                            else
+                            {
+                              //  Log.Information($"No Trade");
                             }
                         }
                         else
@@ -393,15 +290,6 @@ public class PeriodicTaskService : BackgroundService
                     {
                         timestamp.RemoveAt(0);
                     }
-                    // Correct Console.WriteLine format
-
-
-
-                    //if (DateTime.Now >= nextUpdateTime)
-                    //{
-                    //    candlestickModelManager.CheckAndUpdateModelAsync(historicalData);
-                    //    nextUpdateTime = DateTime.Now.AddHours(24); // Set the next update time to 24 hours from now
-                    //}
                 }
             }
             historicalData = null;
@@ -409,7 +297,7 @@ public class PeriodicTaskService : BackgroundService
         catch (Exception ex)
         {
             Log.Information($"Exception occurred At candel Fetch: {ex.Message}");
-          
+
         }
     }
     public async Task TradeAsync(string orderType)
@@ -425,7 +313,7 @@ public class PeriodicTaskService : BackgroundService
         var (markPrice, productId) = await GetTickerAndProduct(symbol, deltaApi);
         await PlaceOrder(productId, qty, markPrice, orderType, deltaApi);
        // var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
-        Log.Information($"Order placed: completed");
+        Log.Information($"Order Process completed");
         // Check the order status and handle it accordingly
         // await ManageOrder(orderResponse, productId, deltaApi);
     }
