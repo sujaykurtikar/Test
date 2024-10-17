@@ -35,9 +35,9 @@ public class PriceActionStrategy
     }
 
     // 2. Detect support and resistance levels
-    public (decimal Support, decimal Resistance) GetSupportResistance()
+    public (decimal Support, decimal Resistance) GetSupportResistance(int candleCount = 20)
     {
-        var recentCandlesticks = _candlesticks.TakeLast(20); // Consider recent 20 candles
+        var recentCandlesticks = _candlesticks.TakeLast(candleCount); // Consider recent 20 candles
         decimal support = recentCandlesticks.Min(c => c.Low);
         decimal resistance = recentCandlesticks.Max(c => c.High);
 

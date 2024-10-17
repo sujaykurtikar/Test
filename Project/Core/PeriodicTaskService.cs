@@ -168,7 +168,7 @@ public class PeriodicTaskService : BackgroundService
                 var calculator = new BollingerBandCalculator();
                 var candels = historicalData;
                 candels.Reverse();
-                var signals = calculator.GenerateSignals(candels).LastOrDefault();
+                var signals = calculator.GetLatestSignal(candels);
 
                 if (signals != null && signals.SignalType.ToString() != bollbingerBand)
                 {
@@ -188,7 +188,7 @@ public class PeriodicTaskService : BackgroundService
             var (support, resistance) = strategy.GetSupportResistance();
             var breakout = strategy.IsBreakout();
             var pullback = strategy.IsPullback();
-            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(); ;
+            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(); 
             if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
             {
                 var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");

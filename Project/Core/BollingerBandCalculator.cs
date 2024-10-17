@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+
 public enum TradeSignal
 {
     Buy,
@@ -27,13 +28,11 @@ public class BollingerBandCalculator
 {
     private readonly int _period;
     private readonly decimal _multiplier;
-    private readonly decimal _squeezeThreshold;
 
-    public BollingerBandCalculator(int period = 20, decimal multiplier = 2, decimal squeezeThreshold = 0.01m)
+    public BollingerBandCalculator(int period = 20, decimal multiplier = 2)
     {
         _period = period;
         _multiplier = multiplier;
-        _squeezeThreshold = squeezeThreshold;
     }
 
     public List<BollingerBands> CalculateBollingerBands(List<Candlestick> candlesticks)
@@ -55,46 +54,47 @@ public class BollingerBandCalculator
             .ToList();
     }
 
-    public bool IsBollingerBandSqueeze(List<BollingerBands> bandsList)
+    public TradeSignal GenerateSignal(Candlestick currentCandle, BollingerBands currentBand)
     {
-        if (bandsList.Count < 2)
-            return false;
+        // Buy condition: green candle starts outside the lower band and closes inside it
+        if (currentCandle.Open < currentBand.LowerBand && currentCandle.Close > currentBand.LowerBand && currentCandle.Close > currentCandle.Open)
+            return TradeSignal.Buy;
 
-        var latestBand = bandsList.Last();
-        decimal bandWidth = (latestBand.UpperBand - latestBand.LowerBand) / latestBand.MiddleBand;
-        return bandWidth < _squeezeThreshold;
-    }
+        // Sell condition: red candle starts outside the upper band and closes inside it
+        if (currentCandle.Open > currentBand.UpperBand && currentCandle.Close < currentBand.UpperBand && currentCandle.Close < currentCandle.Open)
+            return TradeSignal.Sell;
 
-    public TradeSignal GenerateSignal(Candlestick currentCandle, BollingerBands currentBand, bool isSqueeze)
-    {
-        if (isSqueeze)
-        {
-            if (currentCandle.Close > currentBand.LowerBand && currentCandle.Close < currentBand.MiddleBand)
-                return TradeSignal.Buy;
-            else if (currentCandle.Close < currentBand.UpperBand && currentCandle.Close > currentBand.MiddleBand)
-                return TradeSignal.Sell;
-        }
         return TradeSignal.NoTrade;
     }
 
-    public List<Signal> GenerateSignals(List<Candlestick> candlesticks)
+    public Signal GetLatestSignal(List<Candlestick> candlesticks)
     {
         var bollingerBands = CalculateBollingerBands(candlesticks);
-        bool isSqueeze = IsBollingerBandSqueeze(bollingerBands);
 
-        return candlesticks
-            .Skip(bollingerBands.Count - 1)
-            .Select((currentCandle, index) =>
+        // Loop from the latest candle backwards to find the latest non-NoTrade signal
+        for (int i = candlesticks.Count - 1; i >= bollingerBands.Count - 1; i--)
+        {
+            var currentCandle = candlesticks[i];
+            var currentBand = bollingerBands[i - (bollingerBands.Count - 1)];
+            var signalType = GenerateSignal(currentCandle, currentBand);
+
+            if (signalType != TradeSignal.NoTrade)
             {
-                var currentBand = bollingerBands[Math.Min(index, bollingerBands.Count - 1)];
-                var signal = GenerateSignal(currentCandle, currentBand, isSqueeze);
                 return new Signal
                 {
                     Time = currentCandle.Time,
                     Close = currentCandle.Close,
-                    SignalType = signal
+                    SignalType = signalType
                 };
-            })
-            .ToList();
+            }
+        }
+
+        // If no buy/sell signal was found, return the latest with NoTrade status
+        return new Signal
+        {
+            Time = candlesticks.Last().Time,
+            Close = candlesticks.Last().Close,
+            SignalType = TradeSignal.NoTrade
+        };
     }
 }
