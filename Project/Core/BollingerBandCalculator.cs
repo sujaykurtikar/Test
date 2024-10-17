@@ -67,34 +67,77 @@ public class BollingerBandCalculator
         return TradeSignal.NoTrade;
     }
 
+    //public Signal GetLatestSignal(List<Candlestick> candlesticks)
+    //{
+    //    var bollingerBands = CalculateBollingerBands(candlesticks);
+
+    //    // Loop from the latest candle backwards to find the latest non-NoTrade signal
+    //    for (int i = candlesticks.Count - 1; i >= bollingerBands.Count - 1; i--)
+    //    {
+    //        var currentCandle = candlesticks[i];
+    //        var currentBand = bollingerBands[i - (bollingerBands.Count - 1)];
+    //        var signalType = GenerateSignal(currentCandle, currentBand);
+
+    //        if (signalType != TradeSignal.NoTrade)
+    //        {
+    //            return new Signal
+    //            {
+    //                Time = currentCandle.Time,
+    //                Close = currentCandle.Close,
+    //                SignalType = signalType
+    //            };
+    //        }
+    //    }
+
+    //    // If no buy/sell signal was found, return the latest with NoTrade status
+    //    return new Signal
+    //    {
+    //        Time = candlesticks.Last().Time,
+    //        Close = candlesticks.Last().Close,
+    //        SignalType = TradeSignal.NoTrade
+    //    };
+    //}
+
     public Signal GetLatestSignal(List<Candlestick> candlesticks)
     {
         var bollingerBands = CalculateBollingerBands(candlesticks);
 
-        // Loop from the latest candle backwards to find the latest non-NoTrade signal
-        for (int i = candlesticks.Count - 1; i >= bollingerBands.Count - 1; i--)
-        {
-            var currentCandle = candlesticks[i];
-            var currentBand = bollingerBands[i - (bollingerBands.Count - 1)];
-            var signalType = GenerateSignal(currentCandle, currentBand);
-
-            if (signalType != TradeSignal.NoTrade)
+        // Loop from the latest candle backwards to find the most recent Buy or Sell signal
+        var latestTradeSignal = candlesticks
+            .Select((candle, index) => new { Candle = candle, Band = bollingerBands.ElementAtOrDefault(index - (candlesticks.Count - bollingerBands.Count)) })
+            .Where(pair => pair.Band != null) // Ensure we have a matching Bollinger band
+            .Select(pair => new Signal
             {
-                return new Signal
-                {
-                    Time = currentCandle.Time,
-                    Close = currentCandle.Close,
-                    SignalType = signalType
-                };
-            }
-        }
+                Time = pair.Candle.Time,
+                Close = pair.Candle.Close,
+                SignalType = GenerateSignal(pair.Candle, pair.Band)
+            })
+            .LastOrDefault(signal => signal.SignalType == TradeSignal.Buy || signal.SignalType == TradeSignal.Sell);
 
-        // If no buy/sell signal was found, return the latest with NoTrade status
-        return new Signal
+        return latestTradeSignal ?? new Signal
         {
             Time = candlesticks.Last().Time,
             Close = candlesticks.Last().Close,
             SignalType = TradeSignal.NoTrade
         };
+    }
+
+    public List<Signal> GetAllTradeSignals(List<Candlestick> candlesticks)
+    {
+        var bollingerBands = CalculateBollingerBands(candlesticks);
+
+        var tradeSignals = candlesticks
+            .Select((candle, index) => new { Candle = candle, Band = bollingerBands.ElementAtOrDefault(index - (candlesticks.Count - bollingerBands.Count)) })
+            .Where(pair => pair.Band != null) // Ensure we have a matching Bollinger band
+            .Select(pair => new Signal
+            {
+                Time = pair.Candle.Time,
+                Close = pair.Candle.Close,
+                SignalType = GenerateSignal(pair.Candle, pair.Band)
+            })
+            .Where(signal => signal.SignalType == TradeSignal.Buy || signal.SignalType == TradeSignal.Sell) // Filter for Buy/Sell signals only
+            .ToList();
+
+        return tradeSignals;
     }
 }

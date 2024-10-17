@@ -159,6 +159,7 @@ public class PeriodicTaskService : BackgroundService
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
             //_interval = -(DateTime.UtcNow - TimeSpan.FromMinutes(6.40) - lastcandel);
+             historicalData.Reverse();
 
             if (lastcandeltime != null && lastcandeltime != latestCandel)
             {
@@ -166,9 +167,8 @@ public class PeriodicTaskService : BackgroundService
                 latestCandel = lastcandeltime;
 
                 var calculator = new BollingerBandCalculator();
-                var candels = historicalData;
-                candels.Reverse();
-                var signals = calculator.GetLatestSignal(candels);
+
+                var signals = calculator.GetLatestSignal(historicalData);
 
                 if (signals != null && signals.SignalType.ToString() != bollbingerBand)
                 {
@@ -201,8 +201,6 @@ public class PeriodicTaskService : BackgroundService
                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
                      trend, support, resistance, breakout, pullback, priceAction, SignaldateTime);
             }
-
-            historicalData.Reverse();
 
             int shortTerm = _appSettings.GetValue<int>("Period:Period1");
             int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;

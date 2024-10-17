@@ -122,8 +122,9 @@ namespace Test_Project.Controllers
         }
 
         [HttpPost("BollingerBandSignal")]
-        public async Task<ActionResult> GetLatestSignal(string resolution = "15m", int period = 20, decimal multiplier = 2)
+        public async Task<ActionResult> GetLatestSignal(string resolution = "15m", int period = 20, decimal multiplier = 2, bool allTradeSignals = false)
         {
+            
             var endDate = DateTime.UtcNow;
             var fetcher = new HistoricalDataFetcher();
 
@@ -131,28 +132,40 @@ namespace Test_Project.Controllers
             var startDate = DateTime.UtcNow.AddMinutes(-(1000 * value)); // max 2000
 
             List<Candlestick> historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
-           // var lastcandeltime = historicalData.FirstOrDefault().Time;
+           
             historicalData.Reverse();
 
-           // var lastCandelDetail = historicalData.FirstOrDefault();
-           // var lastcandel = DateTimeOffset.FromUnixTimeSeconds(lastcandeltime).UtcDateTime;
             var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-           // var lastcandelT = TimeZoneInfo.ConvertTime(lastcandel, istTimeZone);
-         
 
             var calculator = new BollingerBandCalculator(period, multiplier);
-            var latestSignal = calculator.GetLatestSignal(historicalData);
-            var SignalTime = DateTimeOffset.FromUnixTimeSeconds(latestSignal?.Time ?? 0).UtcDateTime;
-            var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone);
 
-            var response = new
+            if (allTradeSignals) 
             {
-                Signal = latestSignal?.SignalType.ToString(),
-                SignalClosePrice = latestSignal?.Close,
-                SignalTime = SignaldateTime
-            };
+                var allSignals = calculator.GetAllTradeSignals(historicalData);
 
-            return Ok(response);
+                var response = new
+                {
+                    Signals = allSignals.Select(signal => new
+                    {
+                        SignalType = signal.SignalType.ToString(),
+                        SignalClosePrice = signal.Close,
+                        SignalTime = TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeSeconds(signal?.Time ?? 0).UtcDateTime, istTimeZone) 
+                    }).ToList()
+                };
+                return Ok(response);
+            }
+            else 
+            {
+               var latestSignal = calculator.GetLatestSignal(historicalData);
+
+                var response = new
+                {
+                    Signal = latestSignal?.SignalType.ToString(),
+                    SignalClosePrice = latestSignal?.Close,
+                    SignalTime = TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeSeconds(latestSignal?.Time ?? 0).UtcDateTime, istTimeZone)
+                };
+                return Ok(response);
+            }
         }
 
 
@@ -166,7 +179,7 @@ namespace Test_Project.Controllers
             var startDate = DateTime.UtcNow.AddMinutes(-(1000 * value)); // max 2000
 
             List<Candlestick> historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
-
+            historicalData.Reverse();
             var strategy = new PriceActionStrategy(historicalData);
             var trend = strategy.GetTrendDirection();
             var (support, resistance) = strategy.GetSupportResistance(period);
@@ -187,7 +200,8 @@ namespace Test_Project.Controllers
                 Resistance = resistance,
                 Breakout = breakout,
                 Pullback = pullback,
-                Time = SignaldateTime
+                Time = SignaldateTime,
+                Signals = priceActionSignal?.Signal
             };
 
             return Ok(response);

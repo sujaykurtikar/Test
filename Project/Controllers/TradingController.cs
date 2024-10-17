@@ -19,10 +19,10 @@ public class TradingController : ControllerBase
         _appSettings = configuration;
     }
     [HttpGet(Name = "GetTest")]
-    public async Task<IActionResult> GetTest()
+    public async Task<IActionResult> GetTest(string resolution = "15m")
     {
         var fetcher = new HistoricalDataFetcher();
-        var resolution = _appSettings.GetValue<string>("Resolution");
+       // var resolution = _appSettings.GetValue<string>("Resolution");
         int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
         var startDate = DateTime.UtcNow.AddMinutes(-(2000 * value)); // max 2000
         //var startDate = DateTime.UtcNow.AddMinutes(-2000 *5); // 2000 minutes ago
