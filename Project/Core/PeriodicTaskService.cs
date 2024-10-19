@@ -184,13 +184,13 @@ public class PeriodicTaskService : BackgroundService
 
             }
 
-            var timestamp = historicalData.LastOrDefault().Time;
+            var time = historicalData.LastOrDefault().Time;
             var strategy = new PriceActionStrategy(historicalData);
-            var trend = strategy.GetTrendDirection(timestamp);
-            var (support, resistance) = strategy.GetSupportResistance(timestamp, period);
-            var breakout = strategy.IsBreakout(timestamp, period);
-            var pullback = strategy.IsPullback(timestamp);
-            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(timestamp, period);
+            var trend = strategy.GetTrendDirection(time);
+            var (support, resistance) = strategy.GetSupportResistance(time, period);
+            var breakout = strategy.IsBreakout(time, period);
+            var pullback = strategy.IsPullback(time);
+            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(time, period);
        
             if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
             {
