@@ -144,6 +144,7 @@ public class PeriodicTaskService : BackgroundService
     {
         try
         {
+            var period = 20;
             using var scope = _serviceScopeFactory.CreateScope();
             var fetcher = scope.ServiceProvider.GetRequiredService<HistoricalDataFetcher>();
 
@@ -183,12 +184,14 @@ public class PeriodicTaskService : BackgroundService
 
             }
 
+            var timestamp = historicalData.LastOrDefault().Time;
             var strategy = new PriceActionStrategy(historicalData);
-            var trend = strategy.GetTrendDirection();
-            var (support, resistance) = strategy.GetSupportResistance();
-            var breakout = strategy.IsBreakout();
-            var pullback = strategy.IsPullback();
-            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(); 
+            var trend = strategy.GetTrendDirection(timestamp);
+            var (support, resistance) = strategy.GetSupportResistance(timestamp, period);
+            var breakout = strategy.IsBreakout(timestamp, period);
+            var pullback = strategy.IsPullback(timestamp);
+            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(timestamp, period);
+       
             if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
             {
                 var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");

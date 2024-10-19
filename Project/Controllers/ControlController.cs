@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Serilog;
+using static PriceActionStrategy;
 using static Test_Project.Controllers.ControlController;
 
 namespace Test_Project.Controllers
@@ -170,7 +171,7 @@ namespace Test_Project.Controllers
 
 
         [HttpPost("PriceActionSignal")]
-        public async Task<ActionResult> GetPriceActionTradeSignal(string resolution = "15m", int period = 20)
+        public async Task<ActionResult> GetPriceActionTradeSignal(string resolution = "15m", int period = 20, bool allTradeSignals = false)
         {
             var endDate = DateTime.UtcNow;
             var fetcher = new HistoricalDataFetcher();
@@ -181,30 +182,67 @@ namespace Test_Project.Controllers
             List<Candlestick> historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
             historicalData.Reverse();
             var strategy = new PriceActionStrategy(historicalData);
-            var trend = strategy.GetTrendDirection();
-            var (support, resistance) = strategy.GetSupportResistance(period);
-            var breakout = strategy.IsBreakout();
-            var pullback = strategy.IsPullback();
-            var priceActionSignal = strategy.GetTradeSignalWithTimestamp();
-
-            var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-            var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
-
-            var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
-            var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
-
-            var response = new
+            if (allTradeSignals)
             {
-                TradeSignal = trend,
-                Support = support,
-                Resistance = resistance,
-                Breakout = breakout,
-                Pullback = pullback,
-                Time = SignaldateTime,
-                Signals = priceActionSignal?.Signal
-            };
+                var allSignals = new List<PriceActionResult>();
+                var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
-            return Ok(response);
+                foreach (var candle in historicalData)
+                {
+
+                    long timestamp = candle.Time;
+                    var trend = strategy.GetTrendDirection(timestamp);
+                    var (support, resistance) = strategy.GetSupportResistance(timestamp, period);
+                    var breakout = strategy.IsBreakout(timestamp, period);
+                    var pullback = strategy.IsPullback(timestamp);
+                    var priceActionSignal = strategy.GetTradeSignalWithTimestamp(timestamp, period);
+
+                    var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
+                    var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone);
+
+
+                    allSignals.Add(new PriceActionResult
+                    {
+                        TradeSignal = trend,
+                        Support = support,
+                        Resistance = resistance,
+                        Breakout = breakout,
+                        Pullback = pullback,
+                        SignalTime = SignaldateTime,
+                        SignalDetails = priceActionSignal?.Signal
+                    });
+                }
+
+                return Ok(allSignals);
+            }
+            else 
+            {
+                var timestamp = historicalData.LastOrDefault().Time;
+               
+                var trend = strategy.GetTrendDirection(timestamp);
+                var (support, resistance) = strategy.GetSupportResistance(timestamp, period);
+                var breakout = strategy.IsBreakout(timestamp, period);
+                var pullback = strategy.IsPullback(timestamp);
+                var priceActionSignal = strategy.GetTradeSignalWithTimestamp(timestamp, period);
+                var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+                var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
+                var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone);
+
+                var response = new
+                {
+                    TradeSignal = trend,
+                    Support = support,
+                    Resistance = resistance,
+                    Breakout = breakout,
+                    Pullback = pullback,
+                    SignalTime = SignaldateTime,
+                    SignalDetails = priceActionSignal?.Signal
+                };
+
+                return Ok(response);
+
+            }
+           
         }
     }
 

@@ -28,7 +28,7 @@ public class SwaggerClient
         }
         catch (HttpRequestException e)
         {
-            Log.Information($"Request error: {e.Message}");
+            Log.Information($"GetSwaggerPageAsync Request error : {e.Message}");
             return null;
         }
     }

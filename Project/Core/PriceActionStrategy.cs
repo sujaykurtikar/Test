@@ -2,29 +2,46 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
 public class PriceActionStrategy
 {
     private List<Candlestick> _candlesticks;
-
+    public class PriceActionResult
+    {
+        public string TradeSignal { get; set; }
+        public decimal Support { get; set; }
+        public decimal Resistance { get; set; }
+        public bool Breakout { get; set; }
+        public bool Pullback { get; set; }
+        public DateTime SignalTime { get; set; }
+        public string SignalDetails { get; set; }
+    }
     public class PriceActionSignal
     {
         public string Signal { get; set; }
         public long Timestamp { get; set; }
     }
+
     public PriceActionStrategy(List<Candlestick> candlesticks)
     {
         _candlesticks = candlesticks;
     }
 
-    // 1. Identify trend direction
-    public string GetTrendDirection()
+    // Find the index of the candlestick based on the given timestamp
+    private int FindCandleIndexByTimestamp(long timestamp)
     {
-        if (_candlesticks.Count < 2)
+        return _candlesticks.FindIndex(c => c.Time == timestamp);
+    }
+
+    // 1. Identify trend direction using a timestamp
+    public string GetTrendDirection(long timestamp)
+    {
+        int index = FindCandleIndexByTimestamp(timestamp);
+
+        if (index < 1 || index >= _candlesticks.Count)
             return "No trend data";
 
-        var last = _candlesticks[^1];
-        var previous = _candlesticks[^2];
+        var last = _candlesticks[index];
+        var previous = _candlesticks[index - 1];
 
         if (last.Close > previous.Close && last.Low > previous.Low)
             return "Uptrend";
@@ -34,33 +51,41 @@ public class PriceActionStrategy
         return "Range/No clear trend";
     }
 
-    // 2. Detect support and resistance levels
-    public (decimal Support, decimal Resistance) GetSupportResistance(int candleCount = 20)
+    // 2. Detect support and resistance levels up to the given timestamp
+    public (decimal Support, decimal Resistance) GetSupportResistance(long timestamp, int candleCount = 20)
     {
-        var recentCandlesticks = _candlesticks.TakeLast(candleCount); // Consider recent 20 candles
+        int index = FindCandleIndexByTimestamp(timestamp);
+        if (index == -1 || index < candleCount - 1)
+            return (0, 0); // Return 0 if there's not enough data for support/resistance
+
+        var recentCandlesticks = _candlesticks.Skip(index - candleCount + 1).Take(candleCount);
         decimal support = recentCandlesticks.Min(c => c.Low);
         decimal resistance = recentCandlesticks.Max(c => c.High);
 
         return (Support: support, Resistance: resistance);
     }
 
-    // 3. Identify breakout signals
-    public bool IsBreakout()
+    // 3. Identify breakout signals at the given timestamp
+    public bool IsBreakout(long timestamp, int candleCount = 20)
     {
-        var (support, resistance) = GetSupportResistance();
-        var last = _candlesticks[^1];
+        int index = FindCandleIndexByTimestamp(timestamp);
+        if (index == -1) return false;
+
+        var (support, resistance) = GetSupportResistance(timestamp, candleCount);
+        var last = _candlesticks[index];
 
         return last.Close > resistance || last.Close < support;
     }
 
-    // 4. Pullback confirmation
-    public bool IsPullback()
+    // 4. Pullback confirmation at the given timestamp
+    public bool IsPullback(long timestamp)
     {
-        if (_candlesticks.Count < 3) return false;
+        int index = FindCandleIndexByTimestamp(timestamp);
+        if (index < 2) return false;
 
-        var last = _candlesticks[^1];
-        var previous = _candlesticks[^2];
-        var trendDirection = GetTrendDirection();
+        var last = _candlesticks[index];
+        var previous = _candlesticks[index - 1];
+        var trendDirection = GetTrendDirection(timestamp);
 
         if (trendDirection == "Uptrend" && last.Close < previous.Close)
             return true; // Downward movement in uptrend indicates a pullback
@@ -70,14 +95,16 @@ public class PriceActionStrategy
         return false;
     }
 
-    // 5. Generate trading signals
-    public PriceActionSignal GetTradeSignalWithTimestamp()
+    // 5. Generate trading signals with timestamp
+    public PriceActionSignal GetTradeSignalWithTimestamp(long timestamp, int candleCount = 20)
     {
-        string trend = GetTrendDirection();
-        bool breakout = IsBreakout();
-        bool pullback = IsPullback();
+        string trend = GetTrendDirection(timestamp);
+        bool breakout = IsBreakout(timestamp, candleCount);
+        bool pullback = IsPullback(timestamp);
 
-        var lastCandle = _candlesticks[^1];
+        var lastCandle = _candlesticks.FirstOrDefault(c => c.Time == timestamp);
+        if (lastCandle == null) return null;
+
         string tradeSignal = "No trade signal";
 
         if (trend == "Uptrend" && breakout)

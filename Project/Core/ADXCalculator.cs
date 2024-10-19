@@ -61,8 +61,8 @@ public class ADXCalculator
             adxList.Add((candles[i + 1].Time, adx));
 
             // Log intermediate values for comparison
-            Console.WriteLine($"Time: {candles[i + 1].Time}, TR: {trList[i]}, +DM: {plusDMList[i]}, -DM: {minusDMList[i]}, " +
-                              $"+DI: {diPlus}, -DI: {diMinus}, DX: {dx}, ADX: {adx}");
+            //Console.WriteLine($"Time: {candles[i + 1].Time}, TR: {trList[i]}, +DM: {plusDMList[i]}, -DM: {minusDMList[i]}, " +
+            //                  $"+DI: {diPlus}, -DI: {diMinus}, DX: {dx}, ADX: {adx}");
         }
 
         return adxList;
