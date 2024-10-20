@@ -184,26 +184,28 @@ public class PeriodicTaskService : BackgroundService
 
             }
 
-            var time = historicalData.LastOrDefault().Time;
-            var strategy = new PriceActionStrategy(historicalData);
-            var trend = strategy.GetTrendDirection(time);
-            var (support, resistance) = strategy.GetSupportResistance(time, period);
-            var breakout = strategy.IsBreakout(time, period);
-            var pullback = strategy.IsPullback(time);
-            var priceActionSignal = strategy.GetTradeSignalWithTimestamp(time, period);
-       
-            if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
-            {
-                var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-                var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
+            #region
+            //var time = historicalData.LastOrDefault().Time;
+            //var strategy = new PriceActionStrategy(historicalData);
+            //var trend = strategy.GetTrendDirection(time);
+            //var (support, resistance) = strategy.GetSupportResistance(time, period);
+            //var breakout = strategy.IsBreakout(time, period);
+            //var pullback = strategy.IsPullback(time);
+            //var priceActionSignal = strategy.GetTradeSignalWithTimestamp(time, period);
 
-                var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
-                var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
-                priceAction = priceActionSignal.Signal;
+            //if (priceActionSignal != null && priceActionSignal.Signal != priceAction)
+            //{
+            //    var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            //    var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
 
-                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
-                     trend, support, resistance, breakout, pullback, priceAction, SignaldateTime);
-            }
+            //    var SignalTime = DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime;
+            //    var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
+            //    priceAction = priceActionSignal.Signal;
+
+            //    Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
+            //         trend, support, resistance, breakout, pullback, priceAction, SignaldateTime);
+            //}
+            #endregion priceAction Cmnt
 
             int shortTerm = _appSettings.GetValue<int>("Period:Period1");
             int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
@@ -212,23 +214,25 @@ public class PeriodicTaskService : BackgroundService
             var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
             var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
 
-            var supertrend = new SupertrendIndicator(10, 3.0m);
-            var supertrendSignals = supertrend.CalculateSupertrend(historicalData).LastOrDefault();
-            if (supertrendSignals.Signal != superTrend)
-            {
-                superTrend = supertrendSignals.Signal;
-                var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
-                Log.Information($"Trade Signal Supertrend: {superTrend} -current time {istDateTime}");
-            }
+            #region
+            //var supertrend = new SupertrendIndicator(10, 3.0m);
+            //var supertrendSignals = supertrend.CalculateSupertrend(historicalData).LastOrDefault();
+            //if (supertrendSignals.Signal != superTrend)
+            //{
+            //    superTrend = supertrendSignals.Signal;
+            //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            //    Log.Information($"Trade Signal Supertrend: {superTrend} -current time {istDateTime}");
+            //}
+            
 
-            var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
-            if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
-            {
-                VolumeDryUp = tradeSignal;
-                var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
-                Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
-            }
-
+            //var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
+            //if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
+            //{
+            //    VolumeDryUp = tradeSignal;
+            //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            //    Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
+            //}
+            #endregion cmnt
             List<string> timestamp = new List<string>();
             if (latestCrossover != default)
             {
@@ -278,22 +282,22 @@ public class PeriodicTaskService : BackgroundService
                             {
                                 try
                                 {
-                                    await TradeAsync("buy");
+                                    await TradeAsync("buy", crossoverCandle);
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.Information($"Exception occurred: {ex.Message}");
+                                    Log.Information($"TradeAsync - Buy Exception occurred: {ex.Message}");
                                 }
                             }
                             else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
                             {
                                 try
                                 {
-                                    await TradeAsync("sell");
+                                    await TradeAsync("sell", crossoverCandle);
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.Information($"Exception occurred: {ex.Message}");
+                                    Log.Information($"TradeAsync - Sell Exception occurred: {ex.Message}");
                                 }
                             }
                             else
@@ -321,7 +325,7 @@ public class PeriodicTaskService : BackgroundService
 
         }
     }
-    public async Task TradeAsync(string orderType)
+    public async Task TradeAsync(string orderType, Candlestick candle)
     {
         // Initialize the DeltaAPI client with your API key and secret
         var deltaApi = new DeltaAPI("", "");
@@ -332,7 +336,7 @@ public class PeriodicTaskService : BackgroundService
 
         // Fetch the ticker information and place the order
         var (markPrice, productId) = await GetTickerAndProduct(symbol, deltaApi);
-        await PlaceOrder(productId, qty, markPrice, orderType, deltaApi);
+        await PlaceOrder(productId, qty, markPrice, orderType, deltaApi, candle);
        // var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
         Log.Information($"Order Process completed");
         // Check the order status and handle it accordingly
@@ -350,9 +354,9 @@ public class PeriodicTaskService : BackgroundService
     }
 
     // Private method to place a limit order
-    private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi)
+    private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi, Candlestick candle)
     {
-        JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice);
+        JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice, candle);
         //Log.Information($"Order placed: {orderResponse}");
         return orderResponse;
     }
