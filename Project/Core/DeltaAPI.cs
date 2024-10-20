@@ -69,7 +69,7 @@ public class DeltaAPI
     }
 
     // Place a Limit Order
-    public async Task<JObject> PlaceOrderAsync(int productId, decimal qty, string sides, decimal limitPrice, Candlestick candle)
+    public async Task<JObject> PlaceOrderAsync(int productId, decimal qty, string sides, decimal limitPrice, Candlestick candle, string type)
     {
         //var orderPayload = new
         //{
@@ -122,12 +122,18 @@ public class DeltaAPI
                 //    side = "buy"
                 //};
 
+                var entryPrice = limitPrice;
+
+                if (type == "MA")
+                {
+                    entryPrice = candle.High;
+                }
 
                 var trailAmount = 50;
-                var stop_loss_limit_price = candle.High - 70; // Replace "string" with a value
-                var stop_loss_price = candle.High - 40; // Replace "string" with a value
-                var take_profit_limit_price = candle.High + 250; // Replace "string" with a value
-                var take_profit_price = candle.High + 200; // Replace "string" with a value
+                var stop_loss_limit_price = entryPrice - 70; // Replace "string" with a value
+                var stop_loss_price = entryPrice - 40; // Replace "string" with a value
+                var take_profit_limit_price = entryPrice + 250; // Replace "string" with a value
+                var take_profit_price = entryPrice + 200; // Replace "string" with a value
 
                 if (sides == "sell")
                 {

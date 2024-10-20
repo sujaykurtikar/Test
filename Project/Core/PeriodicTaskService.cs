@@ -171,7 +171,7 @@ public class PeriodicTaskService : BackgroundService
 
                 var signals = calculator.GetLatestSignal(historicalData);
 
-                if (signals != null && signals.SignalType.ToString() != bollbingerBand)
+                if (signals != null && latestCandel == signals?.Time)
                 {
                     var istTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
                     var dateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone1);
@@ -180,6 +180,51 @@ public class PeriodicTaskService : BackgroundService
                     var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
                     bollbingerBand = signals.SignalType.ToString();
                     Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
+
+                    var bollbingerTrand = bollbingerBand == "Buy" ? "Uptrend" : "Downtrend";
+                    var time = historicalData.LastOrDefault().Time;
+                    var strategy = new PriceActionStrategy(historicalData);
+                    var trend = strategy.GetTrendDirection(time);
+                    var (support, resistance) = strategy.GetSupportResistance(time, period);
+                    var breakout = strategy.IsBreakout(time, period);
+                    var pullback = strategy.IsPullback(time);
+                    var priceActionSignal = strategy.GetTradeSignalWithTimestamp(time, period);
+
+                    if (trend == bollbingerTrand)
+                    {
+                        var SignaldateTime2 = TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime, istTimeZone);
+
+                        priceAction = priceActionSignal.Signal;
+
+                        Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
+                             trend, support, resistance, breakout, pullback, priceAction, SignaldateTime2);
+
+                        if (trend == "Uptrend")
+                        {
+                            try
+                            {
+                                await TradeAsync("buy", lastCandelDetail, "BB");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Information($"TradeAsync BB - Buy Exception occurred: {ex.Message}");
+                            }
+                        }
+                        else if(trend == "Downtrend")
+                        {
+                            try
+                            {
+                                await TradeAsync("sell", lastCandelDetail, "BB");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Information($"TradeAsync BB - Sell Exception occurred: {ex.Message}");
+                            }
+                        }
+                    
+                    
+                    
+                    }
                 }
 
             }
@@ -282,7 +327,7 @@ public class PeriodicTaskService : BackgroundService
                             {
                                 try
                                 {
-                                    await TradeAsync("buy", crossoverCandle);
+                                    await TradeAsync("buy", crossoverCandle, "MA");
                                 }
                                 catch (Exception ex)
                                 {
@@ -293,7 +338,7 @@ public class PeriodicTaskService : BackgroundService
                             {
                                 try
                                 {
-                                    await TradeAsync("sell", crossoverCandle);
+                                    await TradeAsync("sell", crossoverCandle, "MA");
                                 }
                                 catch (Exception ex)
                                 {
@@ -325,7 +370,7 @@ public class PeriodicTaskService : BackgroundService
 
         }
     }
-    public async Task TradeAsync(string orderType, Candlestick candle)
+    public async Task TradeAsync(string orderType, Candlestick candle, string type)
     {
         // Initialize the DeltaAPI client with your API key and secret
         var deltaApi = new DeltaAPI("", "");
@@ -336,7 +381,7 @@ public class PeriodicTaskService : BackgroundService
 
         // Fetch the ticker information and place the order
         var (markPrice, productId) = await GetTickerAndProduct(symbol, deltaApi);
-        await PlaceOrder(productId, qty, markPrice, orderType, deltaApi, candle);
+        await PlaceOrder(productId, qty, markPrice, orderType, deltaApi, candle, type);
        // var orderResponse = await PlaceOrder(productId, qty, markPrice,orderType, deltaApi);
         Log.Information($"Order Process completed");
         // Check the order status and handle it accordingly
@@ -354,9 +399,9 @@ public class PeriodicTaskService : BackgroundService
     }
 
     // Private method to place a limit order
-    private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi, Candlestick candle)
+    private static async Task<JObject> PlaceOrder(int productId, decimal qty, decimal markPrice,string ordertype, DeltaAPI deltaApi, Candlestick candle, string type)
     {
-        JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice, candle);
+        JObject orderResponse = await deltaApi.PlaceOrderAsync(productId, qty, ordertype, markPrice, candle, type);
         //Log.Information($"Order placed: {orderResponse}");
         return orderResponse;
     }
