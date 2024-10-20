@@ -121,11 +121,13 @@ public class DeltaAPI
                 //    order_type = "market_order",
                 //    side = "buy"
                 //};
+
+
                 var trailAmount = 50;
-                var stop_loss_limit_price = candle.Close - 70; // Replace "string" with a value
-                var stop_loss_price = candle.Close - 40; // Replace "string" with a value
-                var take_profit_limit_price = candle.Close + 250; // Replace "string" with a value
-                var take_profit_price = candle.Close + 200; // Replace "string" with a value
+                var stop_loss_limit_price = candle.High - 70; // Replace "string" with a value
+                var stop_loss_price = candle.High - 40; // Replace "string" with a value
+                var take_profit_limit_price = candle.High + 250; // Replace "string" with a value
+                var take_profit_price = candle.High + 200; // Replace "string" with a value
 
                 if (sides == "sell")
                 {
