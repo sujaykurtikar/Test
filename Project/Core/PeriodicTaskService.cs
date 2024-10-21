@@ -210,7 +210,7 @@ public class PeriodicTaskService : BackgroundService
                                 Log.Information($"TradeAsync BB - Buy Exception occurred: {ex.Message}");
                             }
                         }
-                        else if(trend == "Downtrend")
+                        else if (trend == "Downtrend")
                         {
                             try
                             {
@@ -221,9 +221,102 @@ public class PeriodicTaskService : BackgroundService
                                 Log.Information($"TradeAsync BB - Sell Exception occurred: {ex.Message}");
                             }
                         }
-                    
-                    
-                    
+                    }
+                    else 
+                    {
+
+                        int shortTerm = _appSettings.GetValue<int>("Period:Period1");
+                        int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
+
+                        var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
+                        var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
+                        var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
+
+                        List<string> timestamp = new List<string>();
+                        if (latestCrossover != default)
+                        {
+                            var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
+
+                            var istDateTimenew = DateTime.UtcNow;
+
+                            if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
+                            {
+
+                                var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
+                                var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
+
+                                if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                                {
+                                    logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+                                    bool isBearishDivergence = false;
+                                    bool isBullishDivergence = false;
+
+                                    var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
+                                    string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
+
+                                    var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
+
+                                    Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
+                                  $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
+                                  $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
+                                  $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
+
+
+                                    if (latestCrossover.Type == "Bullish" && trend == "Uptrend") //(adxTrend == "INC" || adxTrend == "REV"))
+                                    {
+                                        isBullishDivergence = true;
+                                    }
+                                    else if (latestCrossover.Type == "Bearish" && trend == "Downtrend")//(adxTrend == "INC" || adxTrend == "REV"))
+                                    {
+                                        isBearishDivergence = true;
+                                    }
+
+                                    Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+                                    if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 5) && (isBullishDivergence || isBearishDivergence))
+                                    {
+                                        Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+
+                                        if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+                                        {
+                                            try
+                                            {
+                                                await TradeAsync("buy", crossoverCandle, "MA");
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Log.Information($"TradeAsync MA - Buy Exception occurred: {ex.Message}");
+                                            }
+                                        }
+                                        else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+                                        {
+                                            try
+                                            {
+                                                await TradeAsync("sell", crossoverCandle, "MA");
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Log.Information($"TradeAsync MA - Sell Exception occurred: {ex.Message}");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //  Log.Information($"No Trade");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //  _logger.LogWarning("istrade is false or conditions not met. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+                                    }
+                                }
+                                timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                                if (timestamp.Count() > 3)
+                                {
+                                    timestamp.RemoveAt(0);
+                                }
+                            }
+                        }
+
                     }
                 }
 
@@ -252,116 +345,118 @@ public class PeriodicTaskService : BackgroundService
             //}
             #endregion priceAction Cmnt
 
-            int shortTerm = _appSettings.GetValue<int>("Period:Period1");
-            int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
-
-            var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
-            var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
-            var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
-
             #region
-            //var supertrend = new SupertrendIndicator(10, 3.0m);
-            //var supertrendSignals = supertrend.CalculateSupertrend(historicalData).LastOrDefault();
-            //if (supertrendSignals.Signal != superTrend)
+            //int shortTerm = _appSettings.GetValue<int>("Period:Period1");
+            //int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
+
+            //var movingAverages = MovingAverageAnalyzer.CalculateMovingAverages(historicalData, shortTerm, longTerm);
+            //var angles = MovingAverageAnalyzer.CalculateAngles(movingAverages, shortTerm, longTerm);
+            //var latestCrossover = MovingAverageAnalyzer.IdentifyCrossoversAndAngles(movingAverages, angles).LastOrDefault();
+
+            //#region
+            ////var supertrend = new SupertrendIndicator(10, 3.0m);
+            ////var supertrendSignals = supertrend.CalculateSupertrend(historicalData).LastOrDefault();
+            ////if (supertrendSignals.Signal != superTrend)
+            ////{
+            ////    superTrend = supertrendSignals.Signal;
+            ////    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            ////    Log.Information($"Trade Signal Supertrend: {superTrend} -current time {istDateTime}");
+            ////}
+
+
+            ////var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
+            ////if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
+            ////{
+            ////    VolumeDryUp = tradeSignal;
+            ////    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
+            ////    Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
+            ////}
+            //#endregion cmnt
+            //List<string> timestamp = new List<string>();
+            //if (latestCrossover != default)
             //{
-            //    superTrend = supertrendSignals.Signal;
-            //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
-            //    Log.Information($"Trade Signal Supertrend: {superTrend} -current time {istDateTime}");
+            //    var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
+
+            //    var istDateTimenew = DateTime.UtcNow;
+
+            //    if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
+            //    {
+
+            //        var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
+            //        var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
+
+            //        if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+            //        {
+            //            logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            //            bool isBearishDivergence = false;
+            //            bool isBullishDivergence = false;
+
+            //            var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
+            //            string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
+
+            //            var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
+
+            //            Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
+            //          $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
+            //          $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
+            //          $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
+
+
+            //            if (latestCrossover.Type == "Bullish" && (adxTrend == "INC" || adxTrend == "REV"))
+            //            {
+            //                isBullishDivergence = true;
+            //            }
+            //            else if (latestCrossover.Type == "Bearish" && (adxTrend == "INC" || adxTrend == "REV"))
+            //            {
+            //                isBearishDivergence = true;
+            //            }
+
+            //            Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+            //            if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 5) && (isBullishDivergence || isBearishDivergence))
+            //            {
+            //                Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+
+            //                if (latestCrossover.Type == "Bullish" && isBullishDivergence)
+            //                {
+            //                    try
+            //                    {
+            //                        await TradeAsync("buy", crossoverCandle, "MA");
+            //                    }
+            //                    catch (Exception ex)
+            //                    {
+            //                        Log.Information($"TradeAsync - Buy Exception occurred: {ex.Message}");
+            //                    }
+            //                }
+            //                else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
+            //                {
+            //                    try
+            //                    {
+            //                        await TradeAsync("sell", crossoverCandle, "MA");
+            //                    }
+            //                    catch (Exception ex)
+            //                    {
+            //                        Log.Information($"TradeAsync - Sell Exception occurred: {ex.Message}");
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                  //  Log.Information($"No Trade");
+            //                }
+            //            }
+            //            else
+            //            {
+            //                //  _logger.LogWarning("istrade is false or conditions not met. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
+            //            }
+            //        }
+            //        timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            //        if (timestamp.Count() > 3)
+            //        {
+            //            timestamp.RemoveAt(0);
+            //        }
+            //    }
             //}
-            
-
-            //var tradeSignal = VolumeDryUpStrategy.GenerateTradeSignal(historicalData, 20);
-            //if (tradeSignal != "No Signal" && tradeSignal != VolumeDryUp)
-            //{
-            //    VolumeDryUp = tradeSignal;
-            //    var istDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone);
-            //    Log.Information($"Trade Signal VolumeDryUpStrategy: {tradeSignal} - {istDateTime}");
-            //}
-            #endregion cmnt
-            List<string> timestamp = new List<string>();
-            if (latestCrossover != default)
-            {
-                var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
-
-                var istDateTimenew = DateTime.UtcNow;
-
-                if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
-                {
-
-                    var utcDateTime = DateTimeOffset.FromUnixTimeSeconds(latestCrossover.Timestamp).UtcDateTime;
-                    var istDateTime = TimeZoneInfo.ConvertTime(utcDateTime, istTimeZone);
-
-                    if (logTime != istDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
-                    {
-                        logTime = istDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-
-                        bool isBearishDivergence = false;
-                        bool isBullishDivergence = false;
-
-                        var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
-                        string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
-
-                        var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
-
-                        Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
-                      $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
-                      $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
-                      $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
-
-
-                        if (latestCrossover.Type == "Bullish" && (adxTrend == "INC" || adxTrend == "REV"))
-                        {
-                            isBullishDivergence = true;
-                        }
-                        else if (latestCrossover.Type == "Bearish" && (adxTrend == "INC" || adxTrend == "REV"))
-                        {
-                            isBearishDivergence = true;
-                        }
-
-                        Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-                        if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 5) && (isBullishDivergence || isBearishDivergence))
-                        {
-                            Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-
-                            if (latestCrossover.Type == "Bullish" && isBullishDivergence)
-                            {
-                                try
-                                {
-                                    await TradeAsync("buy", crossoverCandle, "MA");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Information($"TradeAsync - Buy Exception occurred: {ex.Message}");
-                                }
-                            }
-                            else if (latestCrossover.Type == "Bearish" && isBearishDivergence)
-                            {
-                                try
-                                {
-                                    await TradeAsync("sell", crossoverCandle, "MA");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Information($"TradeAsync - Sell Exception occurred: {ex.Message}");
-                                }
-                            }
-                            else
-                            {
-                              //  Log.Information($"No Trade");
-                            }
-                        }
-                        else
-                        {
-                            //  _logger.LogWarning("istrade is false or conditions not met. Time difference: {TimeDifference} minutes", (DateTime.Now - istDateTime).TotalMinutes);
-                        }
-                    }
-                    timestamp.Add(istDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
-                    if (timestamp.Count() > 3)
-                    {
-                        timestamp.RemoveAt(0);
-                    }
-                }
-            }
+            #endregion Old code of CrossOver
             historicalData = null;
         }
         catch (Exception ex)

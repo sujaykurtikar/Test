@@ -126,7 +126,7 @@ public class DeltaAPI
 
                 if (type == "MA")
                 {
-                    entryPrice = candle.High;
+                    entryPrice = candle.High + 10;
                 }
 
                 var trailAmount = 50;
@@ -154,7 +154,7 @@ public class DeltaAPI
                     product_id = productId,
                     size = qty,
                     side = sides,
-                    limit_price = sides =="sell" ? limitPrice : candle.Close + 20,
+                    limit_price = sides =="sell" ? limitPrice : entryPrice,
                     order_type = "limit_order",//"market_order",// "limit_order",
                     //stop_order_type = "stop_loss_order",
                     //stop_price = stop_loss_price, // Replace "string" with a dynamic value or keep it as a string if necessary
