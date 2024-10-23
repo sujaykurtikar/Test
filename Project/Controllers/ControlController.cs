@@ -244,6 +244,36 @@ namespace Test_Project.Controllers
             }
            
         }
+
+        [HttpPost("BreakoutDetector")]
+        public async Task<ActionResult> GetBreakoutDetector(string resolution = "15m", bool allTradeSignals = false)
+        {
+
+            var endDate = DateTime.UtcNow;
+            var fetcher = new HistoricalDataFetcher();
+
+            int value = int.Parse(new string(resolution.Where(char.IsDigit).ToArray()));
+            var startDate = DateTime.UtcNow.AddMinutes(-(1000 * value)); // max 2000
+
+            List<Candlestick> historicalData = await fetcher.FetchCandles("BTCUSD", resolution, startDate, endDate);
+
+            historicalData.Reverse();
+
+            var istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+            var breakoutDetector = new BreakoutDetector(historicalData);
+            if (allTradeSignals) 
+            {
+               
+                var allBreakouts = breakoutDetector.GetAllBreakouts();
+
+              // var r = allBreakouts.ForEach(breakout => Console.WriteLine(breakout));
+                return Ok(allBreakouts);
+            }
+            string result = breakoutDetector.CheckBreakout(historicalData.LastOrDefault());
+            
+            return Ok(result);
+        }
     }
 
 }
