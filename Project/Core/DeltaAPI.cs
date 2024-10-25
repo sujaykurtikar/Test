@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
 using Serilog;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 
 public class DeltaAPI
 {
@@ -20,14 +22,16 @@ public class DeltaAPI
     private static readonly string _apiKey = "39UYXJu80u1qqeE1gsaJo7j5JoGUb0";
     private static readonly string _apiSecret = "M0cbKEVqeeGzghl2MORxyYO6hTyzHrAhCLgevp7XXt26WOzCNEBAhYtqHmep";
     private readonly HttpClient _client;
+    private readonly IConfiguration _configuration;
 
-    public DeltaAPI(string apiKey, string apiSecret)
+    public DeltaAPI(string apiKey, string apiSecret, IConfiguration configuration)
     {
         ///_apiKey = apiKey;
         //_apiSecret = apiSecret;
         _client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
         _client.DefaultRequestHeaders.Add("api-key", _apiKey);
         _client.DefaultRequestHeaders.Add("api-secret", _apiSecret);
+        _configuration = configuration;
     }
 
     // Fetch ticker information
@@ -122,6 +126,19 @@ public class DeltaAPI
                 //    side = "buy"
                 //};
 
+                var IsOrderSettings = _configuration.GetValue<bool>("IsOrderSettings");
+
+                var orderType = _configuration["OrderSettings:OrderType"];
+                var stopOrderType = _configuration["OrderSettings:StopOrderType"];
+                var stopPrice = _configuration.GetValue<decimal>("OrderSettings:StopPrice");
+                var trailAmountd = _configuration.GetValue<decimal>("OrderSettings:TrailAmount");
+                var stopTriggerMethod = _configuration["OrderSettings:StopTriggerMethod"];
+                var bracketStopLossLimitPrice = _configuration.GetValue<decimal>("OrderSettings:BracketStopLossLimitPrice");
+                var bracketStopLossPrice = _configuration.GetValue<decimal>("OrderSettings:BracketStopLossPrice");
+                var bracketTakeProfitLimitPrice = _configuration.GetValue<decimal>("OrderSettings:BracketTakeProfitLimitPrice");
+                var bracketTakeProfitPrice = _configuration.GetValue<decimal>("OrderSettings:BracketTakeProfitPrice");
+                var timeInForce = _configuration["OrderSettings:TimeInForce"];
+
                 var entryPrice = limitPrice;
 
                 if (type == "MA")
@@ -147,6 +164,26 @@ public class DeltaAPI
                     take_profit_limit_price = limitPrice - 250; // Replace "string" with a value
                     take_profit_price = limitPrice - 200; // Replace "string" with a value
                     trailAmount = -50;
+                }
+
+                if (IsOrderSettings) 
+                {
+
+                     trailAmount = 50;
+                    stop_loss_limit_price = limitPrice - bracketStopLossLimitPrice; // Replace "string" with a value
+                    stop_loss_price = limitPrice - bracketStopLossPrice; // Replace "string" with a value
+                    take_profit_limit_price = limitPrice + bracketTakeProfitLimitPrice; // Replace "string" with a value
+                    take_profit_price = limitPrice + bracketTakeProfitPrice; // Replace "string" with a value
+
+                    if (sides == "sell")
+                    {
+                        stop_loss_limit_price = limitPrice + bracketStopLossLimitPrice; // Replace "string" with a value
+                        stop_loss_price = limitPrice + bracketStopLossPrice; // Replace "string" with a value
+                        take_profit_limit_price = limitPrice - bracketTakeProfitLimitPrice; // Replace "string" with a value
+                        take_profit_price = limitPrice - bracketTakeProfitPrice; // Replace "string" with a value
+                        trailAmount = -50;
+                    }
+
                 }
 
                 var orderData = new
