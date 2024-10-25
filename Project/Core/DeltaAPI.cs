@@ -24,7 +24,7 @@ public class DeltaAPI
     private readonly HttpClient _client;
     private readonly IConfiguration _configuration;
 
-    public DeltaAPI(string apiKey, string apiSecret, IConfiguration configuration = null)
+    public DeltaAPI(string apiKey, string apiSecret, IConfiguration configuration)
     {
         ///_apiKey = apiKey;
         //_apiSecret = apiSecret;

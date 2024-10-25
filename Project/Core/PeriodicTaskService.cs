@@ -469,7 +469,7 @@ public class PeriodicTaskService : BackgroundService
     public async Task TradeAsync(string orderType, Candlestick candle, string type)
     {
         // Initialize the DeltaAPI client with your API key and secret
-        var deltaApi = new DeltaAPI("", "");
+        var deltaApi = new DeltaAPI("", "", _appSettings);
 
         // Define the symbol and quantity
         string symbol = "BTCUSD";

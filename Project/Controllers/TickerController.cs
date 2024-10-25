@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 public class TickerController : ControllerBase
 {
     private readonly DeltaAPI _deltaApi;
-
-    public TickerController()
+    private readonly IConfiguration _configuration;
+    public TickerController(IConfiguration configuration)
     {
+        _configuration = configuration;
         // Initialize DeltaAPI with your API key and secret
-        _deltaApi = new DeltaAPI("your-api-key", "your-api-secret");
+        _deltaApi = new DeltaAPI("your-api-key", "your-api-secret", _configuration);
     }
 
     [HttpGet("{symbol}")]
