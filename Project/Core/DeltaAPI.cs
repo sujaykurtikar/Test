@@ -24,7 +24,7 @@ public class DeltaAPI
     private readonly HttpClient _client;
     private readonly IConfiguration _configuration;
 
-    public DeltaAPI(string apiKey, string apiSecret, IConfiguration configuration)
+    public DeltaAPI(string apiKey, string apiSecret, IConfiguration configuration = null)
     {
         ///_apiKey = apiKey;
         //_apiSecret = apiSecret;
@@ -174,7 +174,6 @@ public class DeltaAPI
                     stop_loss_price = limitPrice - bracketStopLossPrice; // Replace "string" with a value
                     take_profit_limit_price = limitPrice + bracketTakeProfitLimitPrice; // Replace "string" with a value
                     take_profit_price = limitPrice + bracketTakeProfitPrice; // Replace "string" with a value
-
                     if (sides == "sell")
                     {
                         stop_loss_limit_price = limitPrice + bracketStopLossLimitPrice; // Replace "string" with a value
