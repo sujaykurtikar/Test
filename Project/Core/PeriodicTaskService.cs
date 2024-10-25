@@ -194,33 +194,36 @@ public class PeriodicTaskService : BackgroundService
 
             if (trend == bollbingerTrand && latestCandel == signals?.Time)
             {
+                var isTrade = _appSettings.GetValue<bool>("Trade:IsTradeBB");
                 var SignaldateTime2 = TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime, istTimeZone);
 
                 priceAction = priceActionSignal.Signal;
 
                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback}; Trade Signal: {TradeSignal}; Timestamp: {Timestamp}",
                      trend, support, resistance, breakout, pullback, priceAction, SignaldateTime2);
-
-                if (trend == "Uptrend")
+                if (isTrade)
                 {
-                    try
+                    if (trend == "Uptrend")
                     {
-                        await TradeAsync("buy", lastCandelDetail, "BB");
+                        try
+                        {
+                            await TradeAsync("buy", lastCandelDetail, "BB");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Information($"TradeAsync BB - Buy Exception occurred: {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
+                    else if (trend == "Downtrend")
                     {
-                        Log.Information($"TradeAsync BB - Buy Exception occurred: {ex.Message}");
-                    }
-                }
-                else if (trend == "Downtrend")
-                {
-                    try
-                    {
-                        await TradeAsync("sell", lastCandelDetail, "BB");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Information($"TradeAsync BB - Sell Exception occurred: {ex.Message}");
+                        try
+                        {
+                            await TradeAsync("sell", lastCandelDetail, "BB");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Information($"TradeAsync BB - Sell Exception occurred: {ex.Message}");
+                        }
                     }
                 }
             }
@@ -236,7 +239,7 @@ public class PeriodicTaskService : BackgroundService
             List<string> timestamp = new List<string>();
             if (latestCrossover != default)
             {
-                var isTrade = _appSettings.GetValue<bool>("Trade:IsTrade");
+                var isTrade = _appSettings.GetValue<bool>("Trade:IsTradeMA");
 
                 var istDateTimenew = DateTime.UtcNow;
 
