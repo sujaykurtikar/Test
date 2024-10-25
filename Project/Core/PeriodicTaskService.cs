@@ -181,7 +181,6 @@ public class PeriodicTaskService : BackgroundService
             var SignalTime = DateTimeOffset.FromUnixTimeSeconds(signals?.Time ?? 0).UtcDateTime;
             var SignaldateTime = TimeZoneInfo.ConvertTime(SignalTime, istTimeZone1);
             bollbingerBand = signals.SignalType.ToString();
-            Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
 
             var bollbingerTrand = bollbingerBand == "Buy" ? "Uptrend" : "Downtrend";
             var time = historicalData.LastOrDefault().Time;
@@ -194,6 +193,7 @@ public class PeriodicTaskService : BackgroundService
 
             if (trend == bollbingerTrand && latestCandel == signals?.Time)
             {
+                Log.Information($"BollingerBandCalculator: {bollbingerBand}, candelTime {SignaldateTime}, current time {dateTime}");
                 var isTrade = _appSettings.GetValue<bool>("Trade:IsTradeBB");
                 var SignaldateTime2 = TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeSeconds(priceActionSignal?.Timestamp ?? 0).UtcDateTime, istTimeZone);
 
