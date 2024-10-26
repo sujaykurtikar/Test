@@ -232,7 +232,7 @@ public class PeriodicTaskService : BackgroundService
                         Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
                         if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 4) && (isBullishDivergence || isBearishDivergence))
                         {
-                            Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+                           // Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
 
                             if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
@@ -271,7 +271,7 @@ public class PeriodicTaskService : BackgroundService
                         MA2Time = latestCrossover.Timestamp;
                         bool isBearishDivergence = false;
                         bool isBullishDivergence = false;
-
+                        var isTrade2 = _appSettings.GetValue<bool>("Trade:IsTradeMA2");
                         //var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
                         //string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
 
@@ -293,9 +293,9 @@ public class PeriodicTaskService : BackgroundService
                         }
 
                         Log.Information("DATETime: {UtcNow}, UtcDateTime: {UtcDateTime}, Difference (minutes): {Difference}", DateTime.UtcNow, utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
-                        if (isTrade && (Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes) < value + 4) && (isBullishDivergence || isBearishDivergence))
+                        if (isTrade2 && (isBullishDivergence || isBearishDivergence))
                         {
-                            Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
+                            //Log.Information("istrade is true. Time difference: {TimeDifference} minutes", utcDateTime, Math.Abs((DateTime.UtcNow - utcDateTime).TotalMinutes));
 
                             if (latestCrossover.Type == "Bullish" && isBullishDivergence)
                             {
