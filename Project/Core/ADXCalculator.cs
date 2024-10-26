@@ -101,28 +101,53 @@ public class ADXCalculator
     //    return isIncreasing ? $"Increasing at Timestamp: {currentAdx.Time}" : $"Decreasing at Timestamp: {currentAdx.Time}";
     //}
 
+    //public static string CheckAdxReversal(List<(long Time, decimal ADX)> adxValues)
+    //{
+    //    if (adxValues.Count < 2)
+    //    {
+    //        return "Insufficient data for reversal check.";
+    //    }
+
+    //    // Sort by timestamp and take the latest two entries
+    //    var latestAdxValues = adxValues.OrderByDescending(x => x.Time).Take(2).ToList();
+    //    var currentAdx = latestAdxValues[0];
+    //    var previousAdx = latestAdxValues[1];
+
+    //    bool isIncreasing = currentAdx.ADX > previousAdx.ADX;
+    //    bool isDecreasingAndBelowThreshold = currentAdx.ADX < previousAdx.ADX && currentAdx.ADX < 12.5m;
+
+    //    if (isDecreasingAndBelowThreshold)
+    //    {
+    //        return "REV";
+    //    }
+
+    //    return isIncreasing ? "INC" : "DEC";
+    //}
     public static string CheckAdxReversal(List<(long Time, decimal ADX)> adxValues)
     {
-        if (adxValues.Count < 2)
+        if (adxValues.Count < 3)
         {
             return "Insufficient data for reversal check.";
         }
 
-        // Sort by timestamp and take the latest two entries
-        var latestAdxValues = adxValues.OrderByDescending(x => x.Time).Take(2).ToList();
+        // Sort by timestamp and take the latest three entries
+        var latestAdxValues = adxValues.OrderByDescending(x => x.Time).Take(3).ToList();
         var currentAdx = latestAdxValues[0];
         var previousAdx = latestAdxValues[1];
+        var secondPreviousAdx = latestAdxValues[2];
 
-        bool isIncreasing = currentAdx.ADX > previousAdx.ADX;
-        bool isDecreasingAndBelowThreshold = currentAdx.ADX < previousAdx.ADX && currentAdx.ADX < 12.5m;
+        // Check for a bounce pattern (decrease followed by an increase)
+        bool isReversalPattern = secondPreviousAdx.ADX > previousAdx.ADX && currentAdx.ADX > previousAdx.ADX;
 
-        if (isDecreasingAndBelowThreshold)
+        if (isReversalPattern)
         {
             return "REV";
         }
 
-        return isIncreasing ? "INC" : "DEC";
+        // Return "INC" if ADX is increasing, "DEC" if it's decreasing
+        return currentAdx.ADX > previousAdx.ADX ? "INC" : "DEC";
     }
+
 }
 
 

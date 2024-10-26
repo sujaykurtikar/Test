@@ -100,7 +100,8 @@ public class BollingerBandCalculator
 
     public Signal GetLatestSignal(List<Candlestick> candlesticks)
     {
-        var bollingerBands = CalculateBollingerBands(candlesticks);
+        var candlesticksWithoutLast = candlesticks.Take(candlesticks.Count - 1).ToList();
+        var bollingerBands = CalculateBollingerBands(candlesticksWithoutLast);
 
         // Loop from the latest candle backwards to find the most recent Buy or Sell signal
         var latestTradeSignal = candlesticks
@@ -124,7 +125,8 @@ public class BollingerBandCalculator
 
     public List<Signal> GetAllTradeSignals(List<Candlestick> candlesticks)
     {
-        var bollingerBands = CalculateBollingerBands(candlesticks);
+        var candlesticksWithoutLast = candlesticks.Take(candlesticks.Count - 1).ToList();
+        var bollingerBands = CalculateBollingerBands(candlesticksWithoutLast);
 
         var tradeSignals = candlesticks
             .Select((candle, index) => new { Candle = candle, Band = bollingerBands.ElementAtOrDefault(index - (candlesticks.Count - bollingerBands.Count)) })
