@@ -19,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<Test_Project.Controllers.ControlController.ITaskStateService, Test_Project.Controllers.ControlController.TaskStateService>();
 builder.Services.AddSingleton<PeriodicTaskService>(); // Register PeriodicTaskService
 builder.Services.AddSingleton<HistoricalDataFetcher>();
+builder.Services.AddScoped<ChartService>();
 // Register the background service
 builder.Services.AddHostedService<PeriodicTaskService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
