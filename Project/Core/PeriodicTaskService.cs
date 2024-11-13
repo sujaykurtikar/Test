@@ -146,6 +146,7 @@ public class PeriodicTaskService : BackgroundService
     {
         try
         {
+            decimal secondLastValue = 0.0m;
             var period = 20;
             using var scope = _serviceScopeFactory.CreateScope();
             var fetcher = scope.ServiceProvider.GetRequiredService<HistoricalDataFetcher>();
@@ -168,7 +169,8 @@ public class PeriodicTaskService : BackgroundService
             {
                 Log.Information($"New candle fetched, Current time :{TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, New candel time: {lastcandelT}, CandelHigh:{lastCandelDetail.High} ,CandelLow: {lastCandelDetail.Low}, Candelopen:{lastCandelDetail.Open}, CandelLow:{lastCandelDetail.Close}");
                 latestCandel = lastcandeltime;
-            
+
+                secondLastValue = historicalData[historicalData.Count - 2].Close;
             }
 
             var time = historicalData.LastOrDefault().Time;
@@ -214,17 +216,36 @@ public class PeriodicTaskService : BackgroundService
 
                         var crossoverCandle = historicalData.Where(c => c.Time == latestCrossover.Timestamp).FirstOrDefault();
 
+                        if (secondLastValue != 0.0m)
+                        {
+                            if (secondLastValue > resistance)
+                            {
+                                trend = "Uptrend";
+                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
+   trend, support, resistance, breakout, pullback);
+                            }
+                            else if (secondLastValue < support)
+                            {
+                                trend = "Downtrend";
+                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
+   trend, support, resistance, breakout, pullback);
+                            }
+
+
+                        }
+
+
                         Log.Information($"current datetime now {TimeZoneInfo.ConvertTime(DateTime.UtcNow, istTimeZone)}, Crossover at Timestamp {istDateTime}, " +
                       $"Type: {latestCrossover.Type}, Angle: {latestCrossover.Angle}° " +
                       $"Candle Data - Open: {crossoverCandle.Open}, High: {crossoverCandle.High}, " +
                       $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
 
 
-                        if (latestCrossover.Type == "Bullish" && trend == "Uptrend"&&(adxTrend == "INC" || adxTrend == "REV"))
+                        if (latestCrossover.Type == "Bullish" && trend == "Uptrend") // &&(adxTrend == "INC" || adxTrend == "REV"))
                         {
                             isBullishDivergence = true;
                         }
-                        else if (latestCrossover.Type == "Bearish" && trend == "Downtrend"&&(adxTrend == "INC" || adxTrend == "REV"))
+                        else if (latestCrossover.Type == "Bearish" && trend == "Downtrend")//&&(adxTrend == "INC" || adxTrend == "REV"))
                         {
                             isBearishDivergence = true;
                         }
