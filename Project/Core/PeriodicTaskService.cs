@@ -197,7 +197,7 @@ public class PeriodicTaskService : BackgroundService
 
                 if (!timestamp.Contains(istDateTimenew.ToString("yyyy-MM-dd HH:mm:ss")))
                 {
-
+                    string trendT = "NoTrade";
                     var adxValues = ADXCalculator.CalculateADXForCandles(historicalData);
                     string adxTrend = ADXCalculator.CheckAdxReversal(adxValues);
 
@@ -220,15 +220,15 @@ public class PeriodicTaskService : BackgroundService
                         {
                             if (secondLastValue > resistance)
                             {
-                                trend = "Uptrend";
+                                trendT = "Uptrend";
                                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
-   trend, support, resistance, breakout, pullback);
+                                  trendT, support, resistance, breakout, pullback);
                             }
                             else if (secondLastValue < support)
                             {
-                                trend = "Downtrend";
+                                trendT = "Downtrend";
                                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
-   trend, support, resistance, breakout, pullback);
+                                 trendT, support, resistance, breakout, pullback);
                             }
 
 
@@ -241,11 +241,11 @@ public class PeriodicTaskService : BackgroundService
                       $"Low: {crossoverCandle.Low}, Close: {crossoverCandle.Close}, Volume: {crossoverCandle.Volume}, AdXTrand: {adxTrend}, adxValues : {adxValues.LastOrDefault().ADX}");
 
 
-                        if (latestCrossover.Type == "Bullish" && trend == "Uptrend") // &&(adxTrend == "INC" || adxTrend == "REV"))
+                        if (latestCrossover.Type == "Bullish" && trendT == "Uptrend") // &&(adxTrend == "INC" || adxTrend == "REV"))
                         {
                             isBullishDivergence = true;
                         }
-                        else if (latestCrossover.Type == "Bearish" && trend == "Downtrend")//&&(adxTrend == "INC" || adxTrend == "REV"))
+                        else if (latestCrossover.Type == "Bearish" && trendT == "Downtrend")//&&(adxTrend == "INC" || adxTrend == "REV"))
                         {
                             isBearishDivergence = true;
                         }
