@@ -102,7 +102,7 @@ public class PeriodicTaskService : BackgroundService
 
         if (swaggerPageContent != null)
         {
-            Log.Information("Heartbeat signal sent to prevent idling.");
+           // Log.Information("Heartbeat signal sent to prevent idling.");
         }
         else
         {
@@ -181,6 +181,18 @@ public class PeriodicTaskService : BackgroundService
             var pullback = strategy.IsPullback(time);
             var priceActionSignal = strategy.GetTradeSignalWithTimestamp(time, period);
 
+
+            var supportResistanceList = new List<(decimal support, decimal resistance)>();
+
+            foreach (var candle in historicalData.TakeLast(100))
+            {
+                long times = candle.Time;
+
+                var (supports, resistances) = strategy.GetSupportResistance(times, period);
+
+                supportResistanceList.Add((supports, resistances));
+            }
+
             int shortTerm = _appSettings.GetValue<int>("Period:Period1");
             int longTerm = _appSettings.GetValue<int>("Period:Period2"); ;
 
@@ -218,20 +230,20 @@ public class PeriodicTaskService : BackgroundService
 
                         if (secondLastValue != 0.0m)
                         {
-                            if (secondLastValue > resistance)
+                            var prevResistance = supportResistanceList[supportResistanceList.Count - 2].resistance;
+                            var prevSupport = supportResistanceList[supportResistanceList.Count - 2].support;
+                            if (secondLastValue > prevResistance)
                             {
                                 trendT = "Uptrend";
                                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
                                   trendT, support, resistance, breakout, pullback);
                             }
-                            else if (secondLastValue < support)
+                            else if (secondLastValue < prevSupport)
                             {
                                 trendT = "Downtrend";
                                 Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
                                  trendT, support, resistance, breakout, pullback);
                             }
-
-
                         }
 
 
