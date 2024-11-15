@@ -235,14 +235,14 @@ public class PeriodicTaskService : BackgroundService
                             if (secondLastValue > prevResistance)
                             {
                                 trendT = "Uptrend";
-                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
+                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}",
                                   trendT, prevSupport, prevResistance, breakout, pullback);
                             }
                             else if (secondLastValue < prevSupport)
                             {
                                 trendT = "Downtrend";
-                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}; Breakout: {Breakout}; Pullback: {Pullback};",
-                                 trendT, support, resistance, breakout, pullback);
+                                Log.Information(" Price Action Trend: {Trend}; Support: {Support}; Resistance: {Resistance}",
+                                 trendT, prevSupport, prevResistance);
                             }
                         }
 
